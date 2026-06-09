@@ -30,6 +30,7 @@ Route::middleware(['auth', 'role:car_owner'])->prefix('quotes')->name('quotes.')
     Route::get('/', [QuoteRequestController::class, 'index'])->name('index');
     Route::post('/', [QuoteRequestController::class, 'store'])->name('store');
     Route::get('/{quoteRequest}', [QuoteRequestController::class, 'show'])->name('show');
+    Route::post('/{quoteRequest}/quotes/{quote}/accept', [QuoteRequestController::class, 'accept'])->name('accept');
 });
 
 Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage.')->group(function () {

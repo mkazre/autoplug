@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Notifications\NewQuoteRequest;
 use Illuminate\Http\RedirectResponse;
@@ -84,5 +85,24 @@ class QuoteRequestController extends Controller
         $quoteRequest->load(['service', 'vehicle', 'requestGarages.branch.garage', 'requestGarages.quote']);
 
         return view('quotes.show', compact('quoteRequest'));
+    }
+
+    public function accept(Request $request, QuoteRequest $quoteRequest, Quote $quote): RedirectResponse
+    {
+        abort_unless((int) $quoteRequest->user_id === (int) $request->user()->id, 403);
+
+        $qrg = $quote->quoteRequestGarage;
+        abort_unless($qrg && (int) $qrg->quote_request_id === (int) $quoteRequest->id, 403);
+
+        $quote->update(['status' => 'accepted']);
+        $qrg->update(['status' => 'accepted']);
+
+        Quote::whereHas('quoteRequestGarage', fn ($q) => $q->where('quote_request_id', $quoteRequest->id))
+            ->where('id', '!=', $quote->id)
+            ->update(['status' => 'rejected']);
+
+        $quoteRequest->update(['status' => 'closed']);
+
+        return back()->with('status', 'Quote accepted. Online booking & payment arrive in the next phase.');
     }
 }
