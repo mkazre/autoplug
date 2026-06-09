@@ -8,5 +8,6 @@
         <a href="{{ route('garage.dashboard') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.dashboard') }}">Overview</a>
         <a href="{{ route('garage.profile.edit') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.profile.edit') }}">Profile</a>
         <a href="{{ route('garage.branches.index') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.branches.*') }}">Branches</a>
+        <a href="{{ route('garage.photos.index') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.photos.*') }}">Photos</a>
     </div>
 </nav>

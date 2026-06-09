@@ -9,6 +9,11 @@ class GaragePhoto extends Model
 {
     protected $fillable = ['garage_id', 'branch_id', 'photo_url', 'type'];
 
+    protected $casts = [
+        'garage_id' => 'integer',
+        'branch_id' => 'integer',
+    ];
+
     public function garage(): BelongsTo
     {
         return $this->belongsTo(Garage::class);
