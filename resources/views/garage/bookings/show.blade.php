@@ -10,6 +10,9 @@
             @if (session('status'))
                 <div class="bg-green-50 text-green-700 text-sm rounded-lg p-3">{{ session('status') }}</div>
             @endif
+            @if (session('error'))
+                <div class="bg-red-50 text-red-700 text-sm rounded-lg p-3">{{ session('error') }}</div>
+            @endif
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <a href="{{ route('garage.bookings.index') }}" class="text-sm text-gray-500 hover:text-gray-700">&larr; All bookings</a>

@@ -47,7 +47,10 @@ class GarageBookingController extends Controller
         ])['action'];
 
         $t = self::TRANSITIONS[$action];
-        abort_unless(in_array($booking->status, $t['from']), 422, 'That action is not allowed from the current status.');
+
+        if (! in_array($booking->status, $t['from'])) {
+            return back()->with('error', 'That action is no longer available — the booking is already "'.$booking->status.'".');
+        }
 
         $booking->update(['status' => $t['to']]);
         $booking->loadMissing('user');
