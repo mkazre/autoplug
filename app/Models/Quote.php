@@ -14,6 +14,7 @@ class Quote extends Model
     ];
 
     protected $casts = [
+        'quote_request_garage_id' => 'integer',
         'items_json' => 'array',
         'valid_until' => 'date',
         'total_price' => 'decimal:2',

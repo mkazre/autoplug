@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\GarageController;
 use App\Http\Controllers\GaragePhotoController;
+use App\Http\Controllers\GarageQuoteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteRequestController;
 use App\Http\Controllers\SearchController;
@@ -43,6 +44,9 @@ Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage
     Route::get('photos', [GaragePhotoController::class, 'index'])->name('photos.index');
     Route::post('photos', [GaragePhotoController::class, 'store'])->name('photos.store');
     Route::delete('photos/{photo}', [GaragePhotoController::class, 'destroy'])->name('photos.destroy');
+    Route::get('requests', [GarageQuoteController::class, 'index'])->name('requests.index');
+    Route::get('requests/{quoteRequestGarage}', [GarageQuoteController::class, 'show'])->name('requests.show');
+    Route::post('requests/{quoteRequestGarage}/quote', [GarageQuoteController::class, 'storeQuote'])->name('requests.quote.store');
 });
 
 require __DIR__.'/auth.php';

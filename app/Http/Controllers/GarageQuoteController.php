@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\QuoteRequestGarage;
+use App\Notifications\QuoteReady;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class GarageQuoteController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $branchIds = $request->user()->garage->branches()->pluck('id');
+
+        $requests = QuoteRequestGarage::whereIn('branch_id', $branchIds)
+            ->with(['quoteRequest.service', 'branch', 'quote'])
+            ->latest()
+            ->get();
+
+        return view('garage.requests.index', compact('requests'));
+    }
+
+    public function show(Request $request, QuoteRequestGarage $quoteRequestGarage): View
+    {
+        $this->authorizeQrg($request, $quoteRequestGarage);
+
+        $quoteRequestGarage->load(['quoteRequest.service', 'quoteRequest.vehicle', 'branch', 'quote']);
+
+        return view('garage.requests.show', ['qrg' => $quoteRequestGarage]);
+    }
+
+    public function storeQuote(Request $request, QuoteRequestGarage $quoteRequestGarage): RedirectResponse
+    {
+        $this->authorizeQrg($request, $quoteRequestGarage);
+
+        $data = $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.description' => ['required', 'string', 'max:255'],
+            'items.*.price' => ['required', 'numeric', 'min:0'],
+            'valid_until' => ['nullable', 'date', 'after_or_equal:today'],
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $total = collect($data['items'])->sum(fn ($i) => (float) $i['price']);
+
+        $quoteRequestGarage->quote()->updateOrCreate([], [
+            'items_json' => $data['items'],
+            'total_price' => $total,
+            'valid_until' => $data['valid_until'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'status' => 'pending',
+        ]);
+
+        $quoteRequestGarage->update(['status' => 'quoted']);
+
+        $quoteRequestGarage->load('branch.garage', 'quote');
+        $quoteRequestGarage->quoteRequest->user?->notify(new QuoteReady($quoteRequestGarage));
+
+        return redirect()->route('garage.requests.index')->with('status', 'Quote sent.');
+    }
+
+    private function authorizeQrg(Request $request, QuoteRequestGarage $qrg): void
+    {
+        $garageId = $request->user()->garage?->id;
+        abort_unless($qrg->branch && (int) $qrg->branch->garage_id === (int) $garageId, 403);
+    }
+}
