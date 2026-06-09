@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\GarageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,10 @@ Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage
     Route::get('/profile', [GarageController::class, 'editProfile'])->name('profile.edit');
     Route::put('/profile', [GarageController::class, 'updateProfile'])->name('profile.update');
     Route::resource('branches', BranchController::class)->except(['show']);
+    Route::get('branches/{branch}/services', [BranchServiceController::class, 'index'])->name('branches.services.index');
+    Route::post('branches/{branch}/services', [BranchServiceController::class, 'store'])->name('branches.services.store');
+    Route::put('branches/{branch}/services/{garageService}', [BranchServiceController::class, 'update'])->name('branches.services.update');
+    Route::delete('branches/{branch}/services/{garageService}', [BranchServiceController::class, 'destroy'])->name('branches.services.destroy');
 });
 
 require __DIR__.'/auth.php';
