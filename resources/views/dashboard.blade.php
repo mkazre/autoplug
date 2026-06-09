@@ -11,9 +11,10 @@
                     <a href="{{ route('garage.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Manage my garage</a>
                 @else
                     <p class="mb-4 text-gray-700">Find a garage near you, compare quotes, and book a service.</p>
-                    <div class="flex gap-3">
+                    <div class="flex flex-wrap gap-3">
                         <a href="{{ route('search') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Find a garage</a>
                         <a href="{{ route('quotes.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">My quote requests</a>
+                        <a href="{{ route('bookings.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">My bookings</a>
                     </div>
                 @endrole
             </div>

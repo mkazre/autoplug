@@ -66,6 +66,12 @@
                                     @csrf
                                     <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-indigo-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">Accept this quote</button>
                                 </form>
+                            @elseif ($rg->quote->status === 'accepted')
+                                @if ($rg->quote->activeBooking)
+                                    <a href="{{ route('bookings.show', $rg->quote->activeBooking) }}" class="mt-4 block text-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">View booking</a>
+                                @else
+                                    <a href="{{ route('bookings.create', ['quote' => $rg->quote->id]) }}" class="mt-4 block text-center px-4 py-2 bg-indigo-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">Book this service</a>
+                                @endif
                             @endif
                         @else
                             <div class="mt-3">

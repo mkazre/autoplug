@@ -11,6 +11,9 @@ class Booking extends Model
     protected $fillable = ['quote_id', 'user_id', 'branch_id', 'scheduled_at', 'status'];
 
     protected $casts = [
+        'quote_id' => 'integer',
+        'user_id' => 'integer',
+        'branch_id' => 'integer',
         'scheduled_at' => 'datetime',
     ];
 

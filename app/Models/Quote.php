@@ -27,6 +27,11 @@ class Quote extends Model
 
     public function booking(): HasOne
     {
-        return $this->hasOne(Booking::class);
+        return $this->hasOne(Booking::class)->latest('id');
+    }
+
+    public function activeBooking(): HasOne
+    {
+        return $this->hasOne(Booking::class)->where('status', '!=', 'cancelled')->latest('id');
     }
 }

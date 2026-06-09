@@ -10,6 +10,7 @@ class Payment extends Model
     protected $fillable = ['booking_id', 'gateway', 'amount', 'status', 'reference', 'paid_at'];
 
     protected $casts = [
+        'booking_id' => 'integer',
         'paid_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
