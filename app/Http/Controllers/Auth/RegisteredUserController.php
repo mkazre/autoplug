@@ -34,13 +34,27 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'account_type' => ['required', 'in:car_owner,garage_owner'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'garage_name' => ['nullable', 'required_if:account_type,garage_owner', 'string', 'max:255'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->account_type,
+            'phone' => $request->phone,
         ]);
+
+        $user->assignRole($request->account_type);
+
+        if ($request->account_type === 'garage_owner') {
+            $user->garage()->create([
+                'name' => $request->garage_name,
+                'status' => 'pending',
+            ]);
+        }
 
         event(new Registered($user));
 

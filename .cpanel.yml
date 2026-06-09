@@ -1,0 +1,14 @@
+---
+deployment:
+  tasks:
+    # NOTE: This pipeline is for the FUTURE production cPanel account (Phase 4).
+    # The dev subdomain is edited live, so it does NOT use this file.
+    # Before enabling on production, update DEPLOYPATH (and binary paths if needed)
+    # to match that account, then use cPanel > Git Version Control to deploy.
+    - export DEPLOYPATH=/home/bjspecia/autoplug
+    - /bin/cp -R ./* $DEPLOYPATH
+    - cd $DEPLOYPATH && composer install --no-dev --optimize-autoloader
+    - cd $DEPLOYPATH && php artisan migrate --force
+    - cd $DEPLOYPATH && php artisan config:cache
+    - cd $DEPLOYPATH && php artisan route:cache
+    - cd $DEPLOYPATH && php artisan view:cache
