@@ -5,6 +5,7 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,6 +22,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'phone',
+        'fleet_id',
     ];
 
     protected $hidden = [
@@ -33,6 +35,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'fleet_id' => 'integer',
         ];
     }
 
@@ -59,5 +62,15 @@ class User extends Authenticatable implements FilamentUser
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function fleet(): BelongsTo
+    {
+        return $this->belongsTo(Fleet::class);
+    }
+
+    public function ownedFleet(): HasOne
+    {
+        return $this->hasOne(Fleet::class, 'owner_id');
     }
 }

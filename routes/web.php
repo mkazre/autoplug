@@ -4,8 +4,11 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FleetController;
+use App\Http\Controllers\FleetVehicleController;
 use App\Http\Controllers\GarageBookingController;
 use App\Http\Controllers\GarageController;
+use App\Http\Controllers\GarageDirectoryController;
 use App\Http\Controllers\GaragePhotoController;
 use App\Http\Controllers\GarageQuoteController;
 use App\Http\Controllers\PaymentController;
@@ -19,6 +22,8 @@ Route::get('/', function () {
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/garages', [GarageDirectoryController::class, 'index'])->name('garages.index');
+Route::get('/garages/{garage}', [GarageDirectoryController::class, 'show'])->name('garages.show');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -47,6 +52,14 @@ Route::middleware(['auth', 'role:car_owner'])->group(function () {
         Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
         Route::post('/{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
         Route::post('/{booking}/pay', [PaymentController::class, 'pay'])->name('pay');
+    });
+
+    Route::prefix('fleet')->name('fleet.')->group(function () {
+        Route::get('/', [FleetController::class, 'dashboard'])->name('dashboard');
+        Route::resource('vehicles', FleetVehicleController::class)->except(['show']);
+        Route::get('drivers', [FleetController::class, 'drivers'])->name('drivers.index');
+        Route::post('drivers', [FleetController::class, 'addDriver'])->name('drivers.store');
+        Route::delete('drivers/{user}', [FleetController::class, 'removeDriver'])->name('drivers.destroy');
     });
 });
 
