@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Booking;
+use App\Notifications\Channels\AfricasTalkingChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -15,7 +16,7 @@ class BookingUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return $notifiable->phone ? ['mail', AfricasTalkingChannel::class] : ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -40,6 +41,22 @@ class BookingUpdated extends Notification
             'cancelled' => $mail->subject('Booking cancelled')
                 ->line('The booking at '.$garage.' on '.$when.' has been cancelled.'),
             default => $mail->line('Your booking has been updated.'),
+        };
+    }
+
+    public function toSms(object $notifiable): string
+    {
+        $this->booking->loadMissing('branch.garage');
+        $garage = $this->booking->branch?->garage?->name ?? 'the garage';
+        $when = $this->booking->scheduled_at?->format('d M H:i');
+
+        return match ($this->context) {
+            'requested' => 'Autoplug: New booking request for '.$garage.' on '.$when.'.',
+            'confirmed' => 'Autoplug: Booking at '.$garage.' on '.$when.' confirmed.',
+            'inprogress' => 'Autoplug: Your service at '.$garage.' is in progress.',
+            'completed' => 'Autoplug: Your service at '.$garage.' is complete.',
+            'cancelled' => 'Autoplug: Booking at '.$garage.' on '.$when.' cancelled.',
+            default => 'Autoplug: booking update.',
         };
     }
 }

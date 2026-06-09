@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\QuoteRequestGarage;
+use App\Notifications\Channels\AfricasTalkingChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -15,7 +16,7 @@ class QuoteReady extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return $notifiable->phone ? ['mail', AfricasTalkingChannel::class] : ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -28,5 +29,12 @@ class QuoteReady extends Notification
             ->greeting('Hi '.$notifiable->name)
             ->line($garage.' has sent you a quote'.($total !== null ? ' of R'.number_format((float) $total, 2) : '').'.')
             ->action('View your quotes', url('/quotes/'.$this->qrg->quote_request_id));
+    }
+
+    public function toSms(object $notifiable): string
+    {
+        $total = $this->qrg->quote?->total_price;
+
+        return 'Autoplug: A quote'.($total !== null ? ' of R'.number_format((float) $total, 2) : '').' is ready. Log in to view.';
     }
 }

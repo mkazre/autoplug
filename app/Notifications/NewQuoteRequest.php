@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Branch;
 use App\Models\QuoteRequest;
+use App\Notifications\Channels\AfricasTalkingChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -16,7 +17,7 @@ class NewQuoteRequest extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return $notifiable->phone ? ['mail', AfricasTalkingChannel::class] : ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -30,5 +31,10 @@ class NewQuoteRequest extends Notification
             ->line('Service: '.$service)
             ->lineIf((bool) $this->quoteRequest->description, 'Details: '.$this->quoteRequest->description)
             ->action('View request', url('/garage/requests'));
+    }
+
+    public function toSms(object $notifiable): string
+    {
+        return 'Autoplug: New quote request for '.$this->branch->name.'. Log in to respond.';
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Garage;
+use App\Notifications\Channels\AfricasTalkingChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -15,7 +16,7 @@ class GarageStatusUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return $notifiable->phone ? ['mail', AfricasTalkingChannel::class] : ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -39,6 +40,18 @@ class GarageStatusUpdated extends Notification
                 ->line('We need more information about your garage "'.$garage->name.'" application.')
                 ->lineIf((bool) $garage->admin_notes, 'Details: '.$garage->admin_notes),
             default => $mail->line('There is an update on your garage application.'),
+        };
+    }
+
+    public function toSms(object $notifiable): string
+    {
+        $status = $this->context ?? $this->garage->status;
+
+        return match ($status) {
+            'approved' => 'Autoplug: Your garage "'.$this->garage->name.'" has been approved.',
+            'rejected' => 'Autoplug: Your garage "'.$this->garage->name.'" was not approved.',
+            'info_requested' => 'Autoplug: We need more info for "'.$this->garage->name.'".',
+            default => 'Autoplug: update on your garage application.',
         };
     }
 }
