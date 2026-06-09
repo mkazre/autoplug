@@ -5,6 +5,7 @@ use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\GarageController;
 use App\Http\Controllers\GaragePhotoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuoteRequestController;
 use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'role:car_owner'])->prefix('quotes')->name('quotes.')->group(function () {
+    Route::get('/', [QuoteRequestController::class, 'index'])->name('index');
+    Route::post('/', [QuoteRequestController::class, 'store'])->name('store');
+    Route::get('/{quoteRequest}', [QuoteRequestController::class, 'show'])->name('show');
 });
 
 Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage.')->group(function () {

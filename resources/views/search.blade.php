@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 text-gray-900">
+    @php $canRequest = auth()->check() && auth()->user()->hasRole('car_owner'); @endphp
     <header class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
             <a href="{{ url('/') }}" class="text-lg font-bold">Autoplug</a>
@@ -70,31 +71,82 @@
                     <p class="text-sm text-gray-500 mb-3">Enter a location and search to see nearby garages.</p>
                 @endif
 
-                <div class="space-y-3">
-                    @foreach ($branches as $branch)
-                        <div class="bg-white shadow-sm rounded-lg p-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <h3 class="font-semibold text-gray-900">{{ $branch->garage->name }}</h3>
-                                    <p class="text-sm text-gray-600">{{ $branch->name }}@if ($branch->address) — {{ $branch->address }}@endif</p>
-                                    @if ($branch->phone)
-                                        <p class="text-sm text-gray-500">{{ $branch->phone }}</p>
-                                    @endif
-                                </div>
-                                <span class="shrink-0 inline-flex px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs">{{ round($branch->distance, 1) }} km</span>
+                @if ($branches->isNotEmpty() && ! $canRequest)
+                    <div class="mb-3 p-3 bg-blue-50 text-blue-700 text-sm rounded">
+                        @auth Switch to a car-owner account to request quotes. @else <a href="{{ route('login') }}" class="underline">Log in</a> as a car owner to request quotes. @endauth
+                    </div>
+                @endif
+
+                @if ($canRequest && $branches->isNotEmpty())
+                    <form method="POST" action="{{ route('quotes.store') }}">
+                        @csrf
+                        <input type="hidden" name="lat" value="{{ $lat }}">
+                        <input type="hidden" name="lng" value="{{ $lng }}">
+                        <input type="hidden" name="radius" value="{{ $radius }}">
+                        <input type="hidden" name="service_id" value="{{ $serviceId }}">
+
+                        <div class="bg-white shadow-sm rounded-lg p-4 mb-3">
+                            <h3 class="font-medium text-gray-900 mb-2">Request quotes</h3>
+                            <label class="block text-sm text-gray-700">Describe the job</label>
+                            <textarea name="description" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" placeholder="e.g. Car pulls left when braking">{{ old('description') }}</textarea>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+                                <input name="vehicle_make" value="{{ old('vehicle_make') }}" placeholder="Make" class="border-gray-300 rounded-md shadow-sm text-sm">
+                                <input name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="Model" class="border-gray-300 rounded-md shadow-sm text-sm">
+                                <input name="vehicle_year" value="{{ old('vehicle_year') }}" placeholder="Year" class="border-gray-300 rounded-md shadow-sm text-sm">
+                                <input name="vehicle_reg" value="{{ old('vehicle_reg') }}" placeholder="Reg" class="border-gray-300 rounded-md shadow-sm text-sm">
                             </div>
-                            @if ($branch->services->isNotEmpty())
-                                <div class="mt-2 flex flex-wrap gap-1">
-                                    @foreach ($branch->services->take(6) as $gs)
-                                        <span class="inline-flex px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-xs">
-                                            {{ $gs->service?->name }}@if ($gs->price) — R{{ number_format($gs->price, 0) }}@endif
-                                        </span>
-                                    @endforeach
-                                </div>
-                            @endif
+                            <p class="text-xs text-gray-400 mt-2">Tick the garages below, then send.</p>
+                            <x-input-error :messages="$errors->get('branch_ids')" class="mt-2" />
                         </div>
-                    @endforeach
-                </div>
+
+                        <div class="space-y-3">
+                            @foreach ($branches as $branch)
+                                <div class="bg-white shadow-sm rounded-lg p-4">
+                                    <label class="flex items-start gap-3 cursor-pointer">
+                                        <input type="checkbox" name="branch_ids[]" value="{{ $branch->id }}" class="mt-1 rounded border-gray-300 text-indigo-600">
+                                        <span class="flex-1">
+                                            <span class="flex items-center justify-between">
+                                                <span class="font-semibold text-gray-900">{{ $branch->garage->name }}</span>
+                                                <span class="shrink-0 inline-flex px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs">{{ round($branch->distance, 1) }} km</span>
+                                            </span>
+                                            <span class="block text-sm text-gray-600">{{ $branch->name }}@if ($branch->address) — {{ $branch->address }}@endif</span>
+                                            @if ($branch->services->isNotEmpty())
+                                                <span class="mt-2 flex flex-wrap gap-1">
+                                                    @foreach ($branch->services->take(6) as $gs)
+                                                        <span class="inline-flex px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-xs">{{ $gs->service?->name }}@if ($gs->price) — R{{ number_format($gs->price, 0) }}@endif</span>
+                                                    @endforeach
+                                                </span>
+                                            @endif
+                                        </span>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <button type="submit" class="mt-3 inline-flex items-center px-4 py-2 bg-indigo-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">Send request to selected garages</button>
+                    </form>
+                @else
+                    <div class="space-y-3">
+                        @foreach ($branches as $branch)
+                            <div class="bg-white shadow-sm rounded-lg p-4">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-900">{{ $branch->garage->name }}</h3>
+                                        <p class="text-sm text-gray-600">{{ $branch->name }}@if ($branch->address) — {{ $branch->address }}@endif</p>
+                                    </div>
+                                    <span class="shrink-0 inline-flex px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-xs">{{ round($branch->distance, 1) }} km</span>
+                                </div>
+                                @if ($branch->services->isNotEmpty())
+                                    <div class="mt-2 flex flex-wrap gap-1">
+                                        @foreach ($branch->services->take(6) as $gs)
+                                            <span class="inline-flex px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-xs">{{ $gs->service?->name }}@if ($gs->price) — R{{ number_format($gs->price, 0) }}@endif</span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <div>
@@ -111,28 +163,16 @@
         function initMap() {
             const fallback = { lat: -26.2041, lng: 28.0473 };
             const center = window.searchCenter || fallback;
-            map = new google.maps.Map(document.getElementById('map'), {
-                center: center,
-                zoom: window.searchCenter ? 11 : 6,
-            });
+            map = new google.maps.Map(document.getElementById('map'), { center: center, zoom: window.searchCenter ? 11 : 6 });
 
             if (window.searchCenter) {
-                new google.maps.Marker({
-                    position: window.searchCenter,
-                    map: map,
-                    title: 'Your location',
-                    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-                });
+                new google.maps.Marker({ position: window.searchCenter, map: map, title: 'Your location', icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' });
             }
-
             (window.branchMarkers || []).forEach(function (b) {
                 const marker = new google.maps.Marker({ position: { lat: b.lat, lng: b.lng }, map: map, title: b.name });
-                const info = new google.maps.InfoWindow({
-                    content: '<strong>' + b.garage + '</strong><br>' + b.name + '<br>' + b.distance + ' km',
-                });
+                const info = new google.maps.InfoWindow({ content: '<strong>' + b.garage + '</strong><br>' + b.name + '<br>' + b.distance + ' km' });
                 marker.addListener('click', function () { info.open(map, marker); });
             });
-
             const input = document.getElementById('address');
             if (input && google.maps.places && google.maps.places.Autocomplete) {
                 const ac = new google.maps.places.Autocomplete(input, { fields: ['geometry'] });
@@ -155,7 +195,6 @@
             }, function () { alert('Could not get your location.'); });
         }
 
-        // If the user typed an address but no coordinates were set, geocode in-browser then submit.
         document.getElementById('search-form').addEventListener('submit', function (e) {
             const addr = document.getElementById('address').value.trim();
             const lat = document.getElementById('lat').value;

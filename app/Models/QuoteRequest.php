@@ -13,6 +13,13 @@ class QuoteRequest extends Model
         'lat', 'lng', 'radius_km', 'status',
     ];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'vehicle_id' => 'integer',
+        'service_id' => 'integer',
+        'radius_km' => 'integer',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

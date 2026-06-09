@@ -10,6 +10,11 @@ class QuoteRequestGarage extends Model
 {
     protected $fillable = ['quote_request_id', 'branch_id', 'status'];
 
+    protected $casts = [
+        'quote_request_id' => 'integer',
+        'branch_id' => 'integer',
+    ];
+
     public function quoteRequest(): BelongsTo
     {
         return $this->belongsTo(QuoteRequest::class);
