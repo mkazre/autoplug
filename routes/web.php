@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchServiceController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GarageBookingController;
 use App\Http\Controllers\GarageController;
 use App\Http\Controllers\GaragePhotoController;
@@ -19,11 +20,8 @@ Route::get('/', function () {
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
-// PayFast ITN (server-to-server, no auth, CSRF-exempt) + browser return/cancel
 Route::post('/payfast/notify', [PaymentController::class, 'notify'])->name('payfast.notify');
 Route::get('/payments/return', [PaymentController::class, 'return'])->name('payments.return');
 Route::get('/payments/cancel', [PaymentController::class, 'cancel'])->name('payments.cancel');
