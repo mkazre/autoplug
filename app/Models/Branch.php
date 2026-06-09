@@ -13,6 +13,7 @@ class Branch extends Model
     ];
 
     protected $casts = [
+        'garage_id' => 'integer',
         'is_active' => 'boolean',
     ];
 

@@ -10,6 +10,8 @@ class GarageService extends Model
     protected $fillable = ['branch_id', 'service_id', 'price', 'notes'];
 
     protected $casts = [
+        'branch_id' => 'integer',
+        'service_id' => 'integer',
         'price' => 'decimal:2',
     ];
 
