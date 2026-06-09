@@ -5,11 +5,14 @@ use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\GarageController;
 use App\Http\Controllers\GaragePhotoController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

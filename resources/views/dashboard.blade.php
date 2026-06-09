@@ -12,7 +12,10 @@
                         Manage my garage
                     </a>
                 @else
-                    <p class="text-gray-700">Welcome to Autoplug. Garage search is coming soon.</p>
+                    <p class="mb-4 text-gray-700">Find a garage near you, compare quotes, and book a service.</p>
+                    <a href="{{ route('search') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                        Find a garage
+                    </a>
                 @endrole
             </div>
         </div>
