@@ -11,5 +11,6 @@
         <a href="{{ route('garage.photos.index') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.photos.*') }}">Photos</a>
         <a href="{{ route('garage.requests.index') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.requests.*') }}">Requests</a>
         <a href="{{ route('garage.bookings.index') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('garage.bookings.*') }}">Bookings</a>
+        <a href="{{ route('account.settings') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('account.settings') }}">Settings</a>
     </div>
 </nav>

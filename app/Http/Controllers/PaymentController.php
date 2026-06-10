@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Notifications\PaymentReceived;
+use App\Support\Settings;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,8 +38,8 @@ class PaymentController extends Controller
         ]);
 
         $data = [
-            'merchant_id' => config('payfast.merchant_id'),
-            'merchant_key' => config('payfast.merchant_key'),
+            'merchant_id' => Settings::get('payfast_merchant_id', config('payfast.merchant_id')),
+            'merchant_key' => Settings::get('payfast_merchant_key', config('payfast.merchant_key')),
             'return_url' => route('payments.return'),
             'cancel_url' => route('payments.cancel'),
             'notify_url' => route('payfast.notify'),
@@ -47,9 +49,9 @@ class PaymentController extends Controller
             'amount' => number_format($amount, 2, '.', ''),
             'item_name' => 'Autoplug booking #'.$booking->id,
         ];
-        $data['signature'] = $this->signature($data, config('payfast.passphrase'));
+        $data['signature'] = $this->signature($data, $this->passphrase());
 
-        $process = config('payfast.sandbox')
+        $process = $this->sandbox()
             ? 'https://sandbox.payfast.co.za/eng/process'
             : 'https://www.payfast.co.za/eng/process';
 
@@ -70,43 +72,49 @@ class PaymentController extends Controller
     {
         $data = $request->all();
 
-        // 1. Signature check
-        $expected = $this->signature($data, config('payfast.passphrase'));
+        $expected = $this->signature($data, $this->passphrase());
         if (($data['signature'] ?? '') !== $expected) {
             Log::warning('PayFast ITN: signature mismatch', ['ref' => $data['m_payment_id'] ?? null]);
             return response('invalid signature', 400);
         }
 
-        // 2. Server confirmation (post the data back to PayFast)
         if (! $this->serverConfirm($data)) {
             Log::warning('PayFast ITN: server validation failed', ['ref' => $data['m_payment_id'] ?? null]);
             return response('not validated', 400);
         }
 
-        // 3. Locate our payment
         $payment = Payment::where('reference', $data['m_payment_id'] ?? '')->first();
         if (! $payment) {
             return response('payment not found', 200);
         }
 
-        // 4. Amount must match
         if (abs((float) ($data['amount_gross'] ?? 0) - (float) $payment->amount) > 0.01) {
             Log::warning('PayFast ITN: amount mismatch', ['ref' => $payment->reference]);
             return response('amount mismatch', 400);
         }
 
-        // 5. Apply status
         if (($data['payment_status'] ?? '') === 'COMPLETE') {
             $payment->update(['status' => 'paid', 'paid_at' => now()]);
-            $payment->loadMissing('booking');
+            $payment->loadMissing('booking.user');
             if ($payment->booking && $payment->booking->status === 'pending') {
                 $payment->booking->update(['status' => 'confirmed']);
             }
+            $payment->booking?->user?->notify(new PaymentReceived($payment));
         } else {
             $payment->update(['status' => 'failed']);
         }
 
         return response('OK', 200);
+    }
+
+    private function passphrase(): string
+    {
+        return (string) Settings::get('payfast_passphrase', config('payfast.passphrase'));
+    }
+
+    private function sandbox(): bool
+    {
+        return Settings::bool('payfast_sandbox', (bool) config('payfast.sandbox'));
     }
 
     private function signature(array $data, ?string $passphrase = ''): string
@@ -132,7 +140,7 @@ class PaymentController extends Controller
     private function serverConfirm(array $data): bool
     {
         unset($data['signature']);
-        $host = config('payfast.sandbox') ? 'https://sandbox.payfast.co.za' : 'https://www.payfast.co.za';
+        $host = $this->sandbox() ? 'https://sandbox.payfast.co.za' : 'https://www.payfast.co.za';
 
         try {
             $resp = Http::asForm()->post($host.'/eng/query/validate', $data);

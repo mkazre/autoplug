@@ -16,7 +16,7 @@ class BookingUpdated extends Notification
 
     public function via(object $notifiable): array
     {
-        return $notifiable->phone ? ['mail', AfricasTalkingChannel::class] : ['mail'];
+        return \App\Support\NotificationChannels::for($notifiable);
     }
 
     public function toMail(object $notifiable): MailMessage

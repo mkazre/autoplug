@@ -7,36 +7,28 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             @include('garage.partials.nav')
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">{{ $garage->name }}</h3>
-                    @php
-                        $badge = [
-                            'pending'  => ['Pending review', 'bg-yellow-100 text-yellow-800'],
-                            'approved' => ['Approved & listed', 'bg-green-100 text-green-800'],
-                            'rejected' => ['Not approved', 'bg-red-100 text-red-800'],
-                        ][$garage->status] ?? [$garage->status, 'bg-gray-100 text-gray-800'];
-                    @endphp
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badge[1] }}">{{ $badge[0] }}</span>
-                </div>
-                @if ($garage->admin_notes)
-                    <div class="mt-3 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700"><strong>Note from admin:</strong> {{ $garage->admin_notes }}</div>
-                @endif
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">{{ $garage->name }}</h3>
+                @php
+                    $badge = [
+                        'pending'  => ['Pending review', 'bg-yellow-100 text-yellow-800'],
+                        'approved' => ['Approved & listed', 'bg-green-100 text-green-800'],
+                        'rejected' => ['Not approved', 'bg-red-100 text-red-800'],
+                    ][$garage->status] ?? [$garage->status, 'bg-gray-100 text-gray-800'];
+                @endphp
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badge[1] }}">{{ $badge[0] }}</span>
             </div>
+            @if ($garage->admin_notes)
+                <div class="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700"><strong>Note from admin:</strong> {{ $garage->admin_notes }}</div>
+            @endif
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white shadow-sm rounded-lg p-4">
-                    <div class="text-sm text-gray-500">Branches</div>
-                    <div class="text-2xl font-semibold text-gray-900">{{ $garage->branches()->count() }}</div>
-                </div>
-                <a href="{{ route('garage.requests.index') }}" class="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50">
-                    <div class="text-sm text-gray-500">New requests</div>
-                    <div class="text-2xl font-semibold {{ $newRequestsCount > 0 ? 'text-amber-600' : 'text-gray-900' }}">{{ $newRequestsCount }}</div>
-                </a>
-                <a href="{{ route('garage.bookings.index') }}" class="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50">
-                    <div class="text-sm text-gray-500">Upcoming bookings</div>
-                    <div class="text-2xl font-semibold text-gray-900">{{ $upcomingBookings->count() }}</div>
-                </a>
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                <x-stat-card label="Branches" :value="$stats['branches']" icon="🔧" color="violet" :href="route('garage.branches.index')" />
+                <x-stat-card label="New requests" :value="$stats['new_requests']" icon="📥" color="orange" :href="route('garage.requests.index')" />
+                <x-stat-card label="Upcoming bookings" :value="$stats['upcoming']" icon="📅" color="blue" :href="route('garage.bookings.index')" />
+                <x-stat-card label="Total bookings" :value="$stats['total_bookings']" icon="✅" color="green" />
+                <x-stat-card label="Reviews" :value="$stats['reviews']" icon="⭐" color="yellow" :sub="$stats['avg_rating'].' avg rating'" />
+                <x-stat-card label="Status" :value="ucfirst($garage->status)" icon="🏷️" color="slate" />
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

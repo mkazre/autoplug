@@ -8,11 +8,20 @@
             @role('garage_owner')
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <p class="mb-4 text-gray-700">Manage your garage profile, branches, services, photos, requests and bookings.</p>
-                    <a href="{{ route('garage.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Go to my garage</a>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="{{ route('garage.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Go to my garage</a>
+                        <a href="{{ route('account.settings') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">Account settings</a>
+                    </div>
                 </div>
             @else
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <x-stat-card label="Quote requests" :value="$stats['requests'] ?? 0" icon="📋" color="violet" :href="route('quotes.index')" />
+                    <x-stat-card label="Bookings" :value="$stats['bookings'] ?? 0" icon="📅" color="blue" :href="route('bookings.index')" />
+                    <x-stat-card label="Upcoming" :value="$stats['upcoming'] ?? 0" icon="⏳" color="green" />
+                    <x-stat-card label="Vehicles" :value="$stats['vehicles'] ?? 0" icon="🚗" color="orange" />
+                </div>
+
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <p class="mb-4 text-gray-700">Find a garage near you, compare quotes, and book a service.</p>
                     <div class="flex flex-wrap gap-3">
                         <a href="{{ route('search') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Find a garage</a>
                         <a href="{{ route('quotes.index') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">My quote requests</a>
@@ -20,6 +29,7 @@
                         @if (auth()->user()->ownedFleet)
                             <a href="{{ route('fleet.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">Manage fleet</a>
                         @endif
+                        <a href="{{ route('account.settings') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">Account settings</a>
                     </div>
                 </div>
 

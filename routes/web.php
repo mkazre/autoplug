@@ -4,6 +4,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BranchServiceController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FleetController;
 use App\Http\Controllers\FleetVehicleController;
 use App\Http\Controllers\GarageBookingController;
@@ -18,7 +19,16 @@ use App\Http\Controllers\SearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $featured = \App\Models\Garage::approved()
+        ->whereHas('branches', fn ($q) => $q->where('is_active', true))
+        ->withAvg('reviews', 'rating')
+        ->withCount('reviews')
+        ->with(['branches' => fn ($q) => $q->where('is_active', true)])
+        ->orderByDesc('reviews_avg_rating')
+        ->take(6)
+        ->get();
+
+    return view('home', compact('featured'));
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');
@@ -35,6 +45,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/account/settings', [App\Http\Controllers\AccountController::class, 'edit'])->name('account.settings');
+    Route::put('/account/settings', [App\Http\Controllers\AccountController::class, 'update'])->name('account.settings.update');
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin-export')->name('admin.export.')->group(function () {
+    Route::get('users', [ExportController::class, 'users'])->name('users');
+    Route::get('quote-requests', [ExportController::class, 'quoteRequests'])->name('quote-requests');
+    Route::get('quotes', [ExportController::class, 'quotes'])->name('quotes');
+    Route::get('bookings', [ExportController::class, 'bookings'])->name('bookings');
+    Route::get('garages', [ExportController::class, 'garages'])->name('garages');
+    Route::get('payments', [ExportController::class, 'payments'])->name('payments');
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/platform-settings', [App\Http\Controllers\SettingsController::class, 'edit'])->name('platform.settings.edit');
+    Route::put('/platform-settings', [App\Http\Controllers\SettingsController::class, 'update'])->name('platform.settings.update');
 });
 
 Route::middleware(['auth', 'role:car_owner'])->group(function () {
@@ -52,6 +78,8 @@ Route::middleware(['auth', 'role:car_owner'])->group(function () {
         Route::get('/{booking}', [BookingController::class, 'show'])->name('show');
         Route::post('/{booking}/cancel', [BookingController::class, 'cancel'])->name('cancel');
         Route::post('/{booking}/pay', [PaymentController::class, 'pay'])->name('pay');
+        Route::post('/{booking}/review', [App\Http\Controllers\ReviewController::class, 'store'])->name('review');
+        Route::get('/{booking}/invoice', [App\Http\Controllers\InvoiceController::class, 'download'])->name('invoice');
     });
 
     Route::prefix('fleet')->name('fleet.')->group(function () {

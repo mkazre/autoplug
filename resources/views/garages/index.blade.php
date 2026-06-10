@@ -3,7 +3,7 @@
 
     <form method="GET" action="{{ route('garages.index') }}" class="mb-6 flex gap-2">
         <input type="text" name="q" value="{{ $search }}" placeholder="Search by name" class="border-gray-300 rounded-md shadow-sm text-sm w-full max-w-sm">
-        <button type="submit" class="px-4 py-2 bg-gray-800 text-white rounded-md text-xs uppercase tracking-widest">Search</button>
+        <button type="submit" class="px-4 py-2 bg-violet-600 text-white rounded-md text-xs uppercase tracking-widest">Search</button>
     </form>
 
     @if ($garages->isEmpty())
@@ -21,6 +21,9 @@
                         <div>
                             <h3 class="font-semibold text-gray-900">{{ $garage->name }}</h3>
                             <p class="text-xs text-gray-500">{{ $garage->branches->count() }} branch(es)</p>
+                            @if ($garage->reviews_count)
+                                <p class="text-amber-500 text-sm leading-none mt-0.5">{!! str_repeat('★', (int) round($garage->reviews_avg_rating)) !!}<span class="text-gray-300">{!! str_repeat('★', 5 - (int) round($garage->reviews_avg_rating)) !!}</span> <span class="text-gray-400 text-xs">({{ $garage->reviews_count }})</span></p>
+                            @endif
                         </div>
                     </div>
                     @if ($garage->description)

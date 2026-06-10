@@ -9,17 +9,17 @@
         <div>
             <x-input-label :value="__('I am registering as a')" />
             <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <label class="flex items-center p-3 border rounded-md cursor-pointer" :class="accountType === 'car_owner' ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-300'">
-                    <input type="radio" name="account_type" value="car_owner" x-model="accountType" class="text-indigo-600">
-                    <span class="ms-2 text-sm text-gray-700">{{ __('Car Owner') }}</span>
+                <label class="flex items-center justify-center gap-2 p-2.5 border rounded-lg cursor-pointer" :class="accountType === 'car_owner' ? 'border-violet-500 ring-1 ring-violet-500 bg-violet-50' : 'border-gray-300'">
+                    <input type="radio" name="account_type" value="car_owner" x-model="accountType" class="text-violet-600 focus:ring-violet-500">
+                    <span class="text-sm text-gray-700 whitespace-nowrap">{{ __('Car Owner') }}</span>
                 </label>
-                <label class="flex items-center p-3 border rounded-md cursor-pointer" :class="accountType === 'garage_owner' ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-300'">
-                    <input type="radio" name="account_type" value="garage_owner" x-model="accountType" class="text-indigo-600">
-                    <span class="ms-2 text-sm text-gray-700">{{ __('Garage Owner') }}</span>
+                <label class="flex items-center justify-center gap-2 p-2.5 border rounded-lg cursor-pointer" :class="accountType === 'garage_owner' ? 'border-violet-500 ring-1 ring-violet-500 bg-violet-50' : 'border-gray-300'">
+                    <input type="radio" name="account_type" value="garage_owner" x-model="accountType" class="text-violet-600 focus:ring-violet-500">
+                    <span class="text-sm text-gray-700 whitespace-nowrap">{{ __('Garage Owner') }}</span>
                 </label>
-                <label class="flex items-center p-3 border rounded-md cursor-pointer" :class="accountType === 'fleet' ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-300'">
-                    <input type="radio" name="account_type" value="fleet" x-model="accountType" class="text-indigo-600">
-                    <span class="ms-2 text-sm text-gray-700">{{ __('Fleet / Company') }}</span>
+                <label class="flex items-center justify-center gap-2 p-2.5 border rounded-lg cursor-pointer" :class="accountType === 'fleet' ? 'border-violet-500 ring-1 ring-violet-500 bg-violet-50' : 'border-gray-300'">
+                    <input type="radio" name="account_type" value="fleet" x-model="accountType" class="text-violet-600 focus:ring-violet-500">
+                    <span class="text-sm text-gray-700 whitespace-nowrap">{{ __('Fleet / Company') }}</span>
                 </label>
             </div>
             <x-input-error :messages="$errors->get('account_type')" class="mt-2" />
@@ -74,7 +74,7 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-end mt-6">
             <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">{{ __('Already registered?') }}</a>
             <x-primary-button class="ms-4">{{ __('Register') }}</x-primary-button>
         </div>

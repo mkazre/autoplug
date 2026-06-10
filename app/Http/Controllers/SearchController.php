@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Garage;
 use App\Models\Service;
+use App\Support\Settings;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -12,7 +14,11 @@ class SearchController extends Controller
     public function index(Request $request): View
     {
         $services = Service::orderBy('name')->get();
-        $radius = max(5, min(50, (int) $request->input('radius', 15)));
+
+        $radiusMin = Settings::int('radius_min', 5);
+        $radiusMax = Settings::int('radius_max', 50);
+        $radius = max($radiusMin, min($radiusMax, (int) $request->input('radius', $request->user()?->pref('default_radius') ?? Settings::int('default_radius', 15))));
+
         $serviceId = $request->input('service_id');
         $address = $request->input('address');
         $lat = $request->filled('lat') ? (float) $request->input('lat') : null;
@@ -32,6 +38,8 @@ class SearchController extends Controller
                 ->when($serviceId, fn ($q) => $q->whereHas('services', fn ($s) => $s->where('service_id', $serviceId)))
                 ->with(['garage', 'services.service'])
                 ->get();
+
+            $this->applyContactPrivacy($branches, $request->user());
         }
 
         $markers = $branches->map(fn ($b) => [
@@ -42,6 +50,22 @@ class SearchController extends Controller
             'distance' => round($b->distance, 1),
         ])->values();
 
-        return view('search', compact('services', 'radius', 'serviceId', 'address', 'lat', 'lng', 'branches', 'markers', 'error'));
+        return view('search', compact('services', 'radius', 'radiusMin', 'radiusMax', 'serviceId', 'address', 'lat', 'lng', 'branches', 'markers', 'error'));
+    }
+
+    private function applyContactPrivacy($branches, $user): void
+    {
+        if (! Garage::hideContactEnabled()) {
+            return;
+        }
+
+        $visible = Garage::acceptedGarageIdsFor($user);
+
+        $branches->each(function ($branch) use ($visible) {
+            if (! in_array((int) $branch->garage_id, $visible, true)) {
+                $branch->address = null;
+                $branch->phone = null;
+            }
+        });
     }
 }

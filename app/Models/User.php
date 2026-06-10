@@ -23,6 +23,7 @@ class User extends Authenticatable implements FilamentUser
         'role',
         'phone',
         'fleet_id',
+        'preferences',
     ];
 
     protected $hidden = [
@@ -36,12 +37,28 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'fleet_id' => 'integer',
+            'preferences' => 'array',
         ];
     }
 
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasRole('admin');
+    }
+
+    public function pref(string $key, mixed $default = null): mixed
+    {
+        return data_get($this->preferences, $key, $default);
+    }
+
+    public function prefersEmail(): bool
+    {
+        return (bool) $this->pref('notify_email', true);
+    }
+
+    public function prefersSms(): bool
+    {
+        return (bool) $this->pref('notify_sms', true);
     }
 
     public function garage(): HasOne

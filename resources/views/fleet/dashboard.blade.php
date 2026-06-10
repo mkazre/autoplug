@@ -8,14 +8,8 @@
             @include('fleet.partials.nav')
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <a href="{{ route('fleet.vehicles.index') }}" class="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50">
-                    <div class="text-sm text-gray-500">Vehicles</div>
-                    <div class="text-2xl font-semibold text-gray-900">{{ $fleet->vehicles()->count() }}</div>
-                </a>
-                <a href="{{ route('fleet.drivers.index') }}" class="bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50">
-                    <div class="text-sm text-gray-500">Drivers</div>
-                    <div class="text-2xl font-semibold text-gray-900">{{ $fleet->members()->where('id', '!=', $fleet->owner_id)->count() }}</div>
-                </a>
+                <x-stat-card label="Vehicles" :value="$fleet->vehicles()->count()" icon="🚗" color="violet" :href="route('fleet.vehicles.index')" />
+                <x-stat-card label="Drivers" :value="$fleet->members()->where('id', '!=', $fleet->owner_id)->count()" icon="👥" color="blue" :href="route('fleet.drivers.index')" />
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6">

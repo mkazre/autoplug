@@ -4,16 +4,20 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\BookingsChartWidget;
 use App\Filament\Widgets\GarageStatsWidget;
+use App\Filament\Widgets\LatestBookingsWidget;
+use App\Filament\Widgets\LatestQuoteRequestsWidget;
+use App\Filament\Widgets\QuotesChartWidget;
+use App\Filament\Widgets\RevenueChartWidget;
+use App\Support\Settings;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -25,26 +29,62 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        return $panel
+        try {
+            $brand = Settings::get('brand_name', 'Autoplug');
+            $logo = Settings::get('logo');
+            $favicon = Settings::get('favicon');
+            $primary = Settings::get('primary_color');
+            $logoHeight = Settings::int('logo_height', 40);
+        } catch (\Throwable $e) {
+            $brand = 'Autoplug';
+            $logo = $favicon = $primary = null;
+            $logoHeight = 40;
+        }
+
+        $css = '<style>'
+            .'.fi-wi-stats-overview-stat{border-radius:1rem;border:1px solid rgba(0,0,0,.04);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+1){background:linear-gradient(135deg,#ede9fe,#f5f3ff);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+2){background:linear-gradient(135deg,#ffedd5,#fff7ed);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+3){background:linear-gradient(135deg,#dcfce7,#ecfdf5);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+4){background:linear-gradient(135deg,#dbeafe,#eff6ff);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+5){background:linear-gradient(135deg,#fae8ff,#fdf4ff);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+6){background:linear-gradient(135deg,#e2e8f0,#f8fafc);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n+7){background:linear-gradient(135deg,#e0e7ff,#eef2ff);}'
+            .'.fi-wi-stats-overview-stat:nth-child(8n){background:linear-gradient(135deg,#fef9c3,#fefce8);}'
+            .'</style>';
+
+        $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
+            ->sidebarWidth('15rem')
+            ->maxContentWidth('full')
+            ->brandName($brand)
+            ->brandLogoHeight($logoHeight.'px')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => $primary ? Color::hex($primary) : Color::Violet,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 GarageStatsWidget::class,
                 BookingsChartWidget::class,
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                QuotesChartWidget::class,
+                RevenueChartWidget::class,
+                LatestBookingsWidget::class,
+                LatestQuoteRequestsWidget::class,
             ])
+            ->navigationItems([
+                NavigationItem::make('Settings')
+                    ->url(fn (): string => url('/platform-settings'))
+                    ->icon('heroicon-o-cog-6-tooth')
+                    ->sort(99),
+            ])
+            ->renderHook('panels::head.end', fn (): string => $css)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -59,5 +99,14 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+
+        if ($logo) {
+            $panel->brandLogo(asset('storage/'.$logo));
+        }
+        if ($favicon) {
+            $panel->favicon(asset('storage/'.$favicon));
+        }
+
+        return $panel;
     }
 }

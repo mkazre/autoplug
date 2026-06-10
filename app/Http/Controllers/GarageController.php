@@ -16,25 +16,26 @@ class GarageController extends Controller
         $garage = $request->user()->garage;
         $branchIds = $garage->branches()->pluck('id');
 
-        $newRequestsCount = QuoteRequestGarage::whereIn('branch_id', $branchIds)
-            ->where('status', 'pending')
-            ->count();
+        $newRequestsCount = QuoteRequestGarage::whereIn('branch_id', $branchIds)->where('status', 'pending')->count();
 
         $upcomingBookings = Booking::whereIn('branch_id', $branchIds)
             ->whereIn('status', ['pending', 'confirmed', 'inprogress'])
             ->where('scheduled_at', '>=', now()->startOfDay())
-            ->with(['user', 'branch'])
-            ->orderBy('scheduled_at')
-            ->take(5)
-            ->get();
+            ->with(['user', 'branch'])->orderBy('scheduled_at')->take(5)->get();
 
         $recentRequests = QuoteRequestGarage::whereIn('branch_id', $branchIds)
-            ->with(['quoteRequest.service', 'branch', 'quote'])
-            ->latest()
-            ->take(5)
-            ->get();
+            ->with(['quoteRequest.service', 'branch', 'quote'])->latest()->take(5)->get();
 
-        return view('garage.dashboard', compact('garage', 'newRequestsCount', 'upcomingBookings', 'recentRequests'));
+        $stats = [
+            'branches' => $branchIds->count(),
+            'new_requests' => $newRequestsCount,
+            'upcoming' => $upcomingBookings->count(),
+            'total_bookings' => Booking::whereIn('branch_id', $branchIds)->count(),
+            'reviews' => $garage->reviews()->count(),
+            'avg_rating' => round((float) $garage->reviews()->avg('rating'), 1),
+        ];
+
+        return view('garage.dashboard', compact('garage', 'newRequestsCount', 'upcomingBookings', 'recentRequests', 'stats'));
     }
 
     public function editProfile(Request $request): View

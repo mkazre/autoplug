@@ -2,6 +2,7 @@
 
 namespace App\Notifications\Channels;
 
+use App\Support\Settings;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,24 +20,27 @@ class AfricasTalkingChannel
             return;
         }
 
-        $cfg = config('africastalking');
-        if (empty($cfg['api_key'])) {
+        $apiKey = Settings::get('at_api_key', config('africastalking.api_key'));
+        if (empty($apiKey)) {
             Log::info('AfricasTalking: no API key set, skipping SMS.');
             return;
         }
 
+        $username = Settings::get('at_username', config('africastalking.username'));
+        $sandbox = Settings::bool('at_sandbox', (bool) config('africastalking.sandbox'));
+        $from = config('africastalking.from');
         $message = $notification->toSms($notifiable);
-        $base = $cfg['sandbox'] ? 'https://api.sandbox.africastalking.com' : 'https://api.africastalking.com';
+        $base = $sandbox ? 'https://api.sandbox.africastalking.com' : 'https://api.africastalking.com';
 
         try {
             $resp = Http::asForm()->withHeaders([
-                'apiKey' => $cfg['api_key'],
+                'apiKey' => $apiKey,
                 'Accept' => 'application/json',
             ])->post($base.'/version1/messaging', array_filter([
-                'username' => $cfg['username'],
+                'username' => $username,
                 'to' => $to,
                 'message' => $message,
-                'from' => $cfg['from'] ?: null,
+                'from' => $from ?: null,
             ]));
 
             if ($resp->failed()) {

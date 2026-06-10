@@ -8,12 +8,15 @@
             @endif
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ $garage->name }}</h1>
+                @if ($garage->reviews_count)
+                    <p class="text-amber-500">{!! str_repeat('★', (int) round($garage->reviews_avg_rating)) !!}<span class="text-gray-300">{!! str_repeat('★', 5 - (int) round($garage->reviews_avg_rating)) !!}</span> <span class="text-sm text-gray-500">{{ number_format($garage->reviews_avg_rating, 1) }} ({{ $garage->reviews_count }} review(s))</span></p>
+                @endif
                 @if ($garage->description)
                     <p class="text-sm text-gray-600 mt-1">{{ $garage->description }}</p>
                 @endif
             </div>
         </div>
-        <a href="{{ route('search') }}" class="inline-flex items-center mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md text-xs uppercase tracking-widest hover:bg-indigo-500">Request a quote</a>
+        <a href="{{ route('search') }}" class="inline-flex items-center mt-4 px-4 py-2 bg-violet-600 text-white rounded-md text-xs uppercase tracking-widest hover:bg-violet-500">Request a quote</a>
     </div>
 
     <h2 class="text-lg font-semibold text-gray-900 mt-8 mb-3">Branches</h2>
@@ -47,6 +50,24 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             @foreach ($garage->photos as $photo)
                 <img src="{{ asset('storage/'.$photo->photo_url) }}" alt="" class="h-32 w-full object-cover rounded-lg shadow-sm">
+            @endforeach
+        </div>
+    @endif
+
+    @if ($garage->reviews->isNotEmpty())
+        <h2 class="text-lg font-semibold text-gray-900 mt-8 mb-3">Reviews</h2>
+        <div class="space-y-3">
+            @foreach ($garage->reviews as $review)
+                <div class="bg-white shadow-sm rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium text-gray-900">{{ $review->user?->name }}</span>
+                        <span class="text-amber-500">{!! str_repeat('★', $review->rating) !!}<span class="text-gray-300">{!! str_repeat('★', 5 - $review->rating) !!}</span></span>
+                    </div>
+                    @if ($review->comment)
+                        <p class="text-sm text-gray-600 mt-1">{{ $review->comment }}</p>
+                    @endif
+                    <p class="text-xs text-gray-400 mt-1">{{ $review->created_at->diffForHumans() }}</p>
+                </div>
             @endforeach
         </div>
     @endif

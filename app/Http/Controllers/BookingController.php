@@ -56,7 +56,7 @@ class BookingController extends Controller
     {
         abort_unless((int) $booking->user_id === (int) $request->user()->id, 403);
 
-        $booking->load(['branch.garage', 'quote', 'payment']);
+        $booking->load(['branch.garage', 'quote', 'payment', 'review']);
 
         return view('bookings.show', compact('booking'));
     }
