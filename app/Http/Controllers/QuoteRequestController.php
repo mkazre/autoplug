@@ -6,6 +6,7 @@ use App\Models\Branch;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Notifications\NewQuoteRequest;
+use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -67,10 +68,14 @@ class QuoteRequestController extends Controller
             ->with('garage.user')
             ->get();
 
+        // Garages have a configurable window to respond to this request.
+        $garageExpiresAt = now()->addMinutes(Settings::int('garage_response_window_minutes', 2880));
+
         foreach ($branches as $branch) {
             $quoteRequest->requestGarages()->create([
                 'branch_id' => $branch->id,
                 'status' => 'pending',
+                'expires_at' => $garageExpiresAt,
             ]);
             $branch->garage->user?->notify(new NewQuoteRequest($quoteRequest, $branch));
         }

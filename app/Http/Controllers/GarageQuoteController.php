@@ -35,6 +35,11 @@ class GarageQuoteController extends Controller
     {
         $this->authorizeQrg($request, $quoteRequestGarage);
 
+        // Once the response window closes you can no longer submit a first quote.
+        if ($quoteRequestGarage->status !== 'quoted' && $quoteRequestGarage->isExpired()) {
+            return back()->with('error', 'The response window for this request has closed.');
+        }
+
         $data = $request->validate([
             'items' => ['required', 'array', 'min:1'],
             'items.*.description' => ['required', 'string', 'max:255'],

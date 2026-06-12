@@ -26,6 +26,10 @@
                                 </div>
                                 @if ($rg->quote)
                                     <span class="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800">Quoted — R{{ number_format($rg->quote->total_price, 2) }}</span>
+                                @elseif ($rg->expires_at && $rg->expires_at->isPast())
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">Window closed</span>
+                                @elseif ($rg->expires_at)
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">Respond in @include('partials.countdown', ['expires' => $rg->expires_at, 'class' => 'font-semibold', 'expiredClass' => 'text-red-700 font-semibold', 'expiredLabel' => 'closed'])</span>
                                 @else
                                     <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">New</span>
                                 @endif
