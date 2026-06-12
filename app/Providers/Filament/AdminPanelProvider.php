@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\BidderStatsWidget;
 use App\Filament\Widgets\BookingsChartWidget;
 use App\Filament\Widgets\GarageStatsWidget;
 use App\Filament\Widgets\LatestBookingsWidget;
@@ -72,6 +73,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->widgets([
                 GarageStatsWidget::class,
+                BidderStatsWidget::class,
                 BookingsChartWidget::class,
                 QuotesChartWidget::class,
                 RevenueChartWidget::class,

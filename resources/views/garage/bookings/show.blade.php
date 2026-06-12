@@ -21,6 +21,10 @@
                     <x-booking-status :status="$booking->status" />
                 </div>
                 <p class="text-sm text-gray-500">{{ $booking->branch?->name }}</p>
+                @if ($booking->user?->phone)
+                    <p class="text-sm text-gray-700 mt-2">Phone: <a href="tel:{{ $booking->user->phone }}" class="text-violet-600 hover:underline">{{ $booking->user->phone }}</a></p>
+                @endif
+                <p class="text-sm text-gray-700 mt-1">Email: <a href="mailto:{{ $booking->user?->email }}" class="text-violet-600 hover:underline">{{ $booking->user?->email }}</a></p>
                 <p class="text-sm text-gray-700 mt-2">Scheduled: {{ $booking->scheduled_at?->format('D, d M Y H:i') }}</p>
                 @if ($booking->quote)
                     <p class="text-sm text-gray-700 mt-1">Amount: R{{ number_format($booking->quote->total_price, 2) }}</p>

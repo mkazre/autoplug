@@ -27,7 +27,7 @@ class GarageQuoteController extends Controller
     {
         $this->authorizeQrg($request, $quoteRequestGarage);
 
-        $quoteRequestGarage->load(['quoteRequest.service', 'quoteRequest.vehicle', 'branch', 'quote']);
+        $quoteRequestGarage->load(['quoteRequest.service', 'quoteRequest.vehicle', 'quoteRequest.user', 'branch', 'quote']);
 
         return view('garage.requests.show', ['qrg' => $quoteRequestGarage]);
     }

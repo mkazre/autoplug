@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
+use App\Models\QuoteRequestGarage;
 use App\Notifications\NewQuoteRequest;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
@@ -106,9 +107,16 @@ class QuoteRequestController extends Controller
         $quote->update(['status' => 'accepted']);
         $qrg->update(['status' => 'accepted']);
 
+        // Reject the other garages' quotes and mark those bids (the ones that actually
+        // quoted) as lost, so win/lose stats only count real competitors.
         Quote::whereHas('quoteRequestGarage', fn ($q) => $q->where('quote_request_id', $quoteRequest->id))
             ->where('id', '!=', $quote->id)
             ->update(['status' => 'rejected']);
+
+        QuoteRequestGarage::where('quote_request_id', $quoteRequest->id)
+            ->where('id', '!=', $qrg->id)
+            ->where('status', 'quoted')
+            ->update(['status' => 'declined']);
 
         $quoteRequest->update(['status' => 'closed']);
 

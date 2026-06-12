@@ -3,7 +3,11 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Quote request') }}</h2>
     </x-slot>
 
-    @php $windowClosed = $qrg->status !== 'quoted' && $qrg->expires_at && $qrg->expires_at->isPast(); @endphp
+    @php
+        $windowClosed = $qrg->status !== 'quoted' && $qrg->expires_at && $qrg->expires_at->isPast();
+        $won = $qrg->status === 'accepted';
+        $customer = $qrg->quoteRequest?->user;
+    @endphp
 
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -18,6 +22,28 @@
                 @endif
                 @if ($qrg->quoteRequest?->vehicle)
                     <p class="text-sm text-gray-500 mt-1">Vehicle: {{ $qrg->quoteRequest->vehicle->make }} {{ $qrg->quoteRequest->vehicle->model }} {{ $qrg->quoteRequest->vehicle->year }} {{ $qrg->quoteRequest->vehicle->registration }}</p>
+                @endif
+            </div>
+
+            <div class="bg-white shadow-sm sm:rounded-lg p-6 {{ $won ? 'ring-1 ring-green-300' : '' }}">
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Customer contact</h3>
+                @if ($won)
+                    <p class="text-xs text-green-700 mb-3 inline-flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        You won this job — here are the customer's details.
+                    </p>
+                    <dl class="text-sm text-gray-700 space-y-1">
+                        <div class="flex gap-3"><dt class="w-16 text-gray-500">Name</dt><dd class="font-medium">{{ $customer?->name }}</dd></div>
+                        @if ($customer?->phone)
+                            <div class="flex gap-3"><dt class="w-16 text-gray-500">Phone</dt><dd><a href="tel:{{ $customer->phone }}" class="text-violet-600 hover:underline">{{ $customer->phone }}</a></dd></div>
+                        @endif
+                        <div class="flex gap-3"><dt class="w-16 text-gray-500">Email</dt><dd><a href="mailto:{{ $customer?->email }}" class="text-violet-600 hover:underline">{{ $customer?->email }}</a></dd></div>
+                    </dl>
+                @else
+                    <div class="flex items-start gap-2 text-sm text-gray-500">
+                        <svg class="w-5 h-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <p>The customer's name, phone and email are revealed here only once they accept your quote.</p>
+                    </div>
                 @endif
             </div>
 
