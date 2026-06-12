@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\QuoteRequestGarage;
 use App\Notifications\QuoteReady;
+use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -50,12 +51,16 @@ class GarageQuoteController extends Controller
 
         $total = collect($data['items'])->sum(fn ($i) => (float) $i['price']);
 
+        // The customer's acceptance clock starts (or restarts) the moment a quote is sent.
+        $acceptExpiresAt = now()->addMinutes(Settings::int('quote_accept_window_minutes', 2880));
+
         $quoteRequestGarage->quote()->updateOrCreate([], [
             'items_json' => $data['items'],
             'total_price' => $total,
             'valid_until' => $data['valid_until'] ?? null,
             'notes' => $data['notes'] ?? null,
             'status' => 'pending',
+            'expires_at' => $acceptExpiresAt,
         ]);
 
         $quoteRequestGarage->update(['status' => 'quoted']);

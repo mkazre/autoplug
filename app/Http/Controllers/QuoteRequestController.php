@@ -99,6 +99,10 @@ class QuoteRequestController extends Controller
         $qrg = $quote->quoteRequestGarage;
         abort_unless($qrg && (int) $qrg->quote_request_id === (int) $quoteRequest->id, 403);
 
+        if ($quote->isExpired()) {
+            return back()->with('error', 'This quote has expired and can no longer be accepted. You can request a fresh quote from the garage.');
+        }
+
         $quote->update(['status' => 'accepted']);
         $qrg->update(['status' => 'accepted']);
 

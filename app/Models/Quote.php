@@ -10,7 +10,7 @@ class Quote extends Model
 {
     protected $fillable = [
         'quote_request_garage_id', 'items_json', 'total_price',
-        'notes', 'valid_until', 'status',
+        'notes', 'valid_until', 'status', 'expires_at',
     ];
 
     protected $casts = [
@@ -18,7 +18,13 @@ class Quote extends Model
         'items_json' => 'array',
         'valid_until' => 'date',
         'total_price' => 'decimal:2',
+        'expires_at' => 'datetime',
     ];
+
+    public function isExpired(): bool
+    {
+        return $this->expires_at !== null && $this->expires_at->isPast();
+    }
 
     public function quoteRequestGarage(): BelongsTo
     {

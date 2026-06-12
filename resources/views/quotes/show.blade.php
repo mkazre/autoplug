@@ -8,6 +8,9 @@
             @if (session('status'))
                 <div class="bg-green-50 text-green-700 text-sm rounded-lg p-3">{{ session('status') }}</div>
             @endif
+            @if (session('error'))
+                <div class="bg-red-50 text-red-700 text-sm rounded-lg p-3">{{ session('error') }}</div>
+            @endif
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <a href="{{ route('quotes.index') }}" class="text-sm text-gray-500 hover:text-gray-700">&larr; My requests</a>
@@ -62,10 +65,28 @@
                             @endif
 
                             @if ($quoteRequest->status !== 'closed')
-                                <form method="POST" action="{{ route('quotes.accept', [$quoteRequest, $rg->quote]) }}" class="mt-4">
-                                    @csrf
-                                    <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Accept this quote</button>
-                                </form>
+                                @if ($rg->quote->expires_at)
+                                    <div class="mt-4"
+                                         x-data="{ end: {{ $rg->quote->expires_at->getTimestamp() * 1000 }}, now: Date.now(),
+                                                   get expired() { return this.now >= this.end; },
+                                                   fmt() { let s = Math.max(0, Math.floor((this.end - this.now) / 1000)); let d = Math.floor(s/86400); s -= d*86400; let h = Math.floor(s/3600); s -= h*3600; let m = Math.floor(s/60); s -= m*60; let o = []; if (d) o.push(d+'d'); if (h||d) o.push(h+'h'); o.push(m+'m'); if (!d) o.push(s+'s'); return o.join(' '); } }"
+                                         x-init="setInterval(() => now = Date.now(), 1000)">
+                                        <p class="text-xs mb-2" :class="expired ? 'text-red-600' : 'text-gray-500'">
+                                            <template x-if="!expired"><span>Accept within <span class="font-semibold" x-text="fmt()"></span></span></template>
+                                            <template x-if="expired"><span class="font-semibold">This quote has expired.</span></template>
+                                        </p>
+                                        <form method="POST" action="{{ route('quotes.accept', [$quoteRequest, $rg->quote]) }}" x-show="!expired">
+                                            @csrf
+                                            <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Accept this quote</button>
+                                        </form>
+                                        <div x-show="expired" style="display:none" class="w-full text-center px-4 py-2 bg-gray-100 rounded-md font-semibold text-xs text-gray-500 uppercase tracking-widest">Expired — request a new quote</div>
+                                    </div>
+                                @else
+                                    <form method="POST" action="{{ route('quotes.accept', [$quoteRequest, $rg->quote]) }}" class="mt-4">
+                                        @csrf
+                                        <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Accept this quote</button>
+                                    </form>
+                                @endif
                             @elseif ($rg->quote->status === 'accepted')
                                 @if ($rg->quote->activeBooking)
                                     <a href="{{ route('bookings.show', $rg->quote->activeBooking) }}" class="mt-4 block text-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">View booking</a>
