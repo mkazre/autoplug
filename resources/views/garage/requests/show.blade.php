@@ -7,6 +7,7 @@
         $windowClosed = $qrg->status !== 'quoted' && $qrg->expires_at && $qrg->expires_at->isPast();
         $won = $qrg->status === 'accepted';
         $customer = $qrg->quoteRequest?->user;
+        $locked = \App\Support\Settings::bool('lock_quote_after_accept', true) && $qrg->quoteRequest?->status === 'closed';
     @endphp
 
     <div class="py-12">
@@ -52,7 +53,7 @@
                     <div class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded">{{ session('error') }}</div>
                 @endif
 
-                @if ($qrg->expires_at && ! $qrg->quote)
+                @if (! $locked && $qrg->expires_at && ! $qrg->quote)
                     <div class="mb-4 p-3 rounded text-sm {{ $qrg->expires_at->isPast() ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-800' }}">
                         @if ($qrg->expires_at->isPast())
                             Response window closed — you can no longer quote this request.
@@ -62,9 +63,26 @@
                     </div>
                 @endif
 
-                <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $qrg->quote ? 'Update your quote' : 'Submit a quote' }}</h3>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">{{ $qrg->quote ? 'Your quote' : 'Submit a quote' }}</h3>
 
-                @if ($windowClosed)
+                @if ($locked)
+                    @if ($qrg->quote)
+                        <ul class="divide-y divide-gray-100 text-sm mb-3">
+                            @foreach ($qrg->quote->items_json ?? [] as $item)
+                                <li class="flex justify-between py-1">
+                                    <span class="text-gray-700">{{ $item['description'] ?? '' }}</span>
+                                    <span class="text-gray-900">R{{ number_format((float) ($item['price'] ?? 0), 2) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="text-right text-sm font-semibold text-gray-900 mb-3">Total: R{{ number_format($qrg->quote->total_price, 2) }}</div>
+                    @endif
+                    <p class="text-sm {{ $won ? 'text-green-700' : 'text-gray-500' }}">
+                        {{ $won
+                            ? 'You won this job — the quote is now locked and can no longer be edited.'
+                            : 'This request has been awarded to another garage, so it can no longer be quoted.' }}
+                    </p>
+                @elseif ($windowClosed)
                     <p class="text-sm text-gray-500">This request's response window has closed, so it can no longer be quoted.</p>
                 @else
                     <form method="POST" action="{{ route('garage.requests.quote.store', $qrg) }}"

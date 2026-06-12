@@ -134,6 +134,11 @@
                         </div>
                     </div>
                 </div>
+                <label class="flex items-start gap-2 mt-5 pt-4 border-t border-gray-100">
+                    <input type="hidden" name="lock_quote_after_accept" value="0">
+                    <input type="checkbox" name="lock_quote_after_accept" value="1" class="mt-0.5 rounded border-gray-300 text-violet-600" @checked($bool('lock_quote_after_accept', true))>
+                    <span class="text-sm text-gray-700">Lock the garage quote form once a customer accepts a quote for the request <span class="block text-xs text-gray-500">Prevents a garage editing or adding items to an already-awarded quote.</span></span>
+                </label>
             </section>
 
             <section class="bg-white shadow-sm rounded-lg p-6">

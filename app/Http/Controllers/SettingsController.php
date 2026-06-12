@@ -59,6 +59,7 @@ class SettingsController extends Controller
         Settings::set('quote_accept_window_minutes', $acceptMinutes > 0 ? $acceptMinutes : 2880);
         Settings::set('garage_response_window_minutes', $garageMinutes > 0 ? $garageMinutes : 2880);
 
+        Settings::set('lock_quote_after_accept', $request->boolean('lock_quote_after_accept'));
         Settings::set('hide_contact_until_accepted', $request->boolean('hide_contact_until_accepted'));
         Settings::set('payfast_sandbox', $request->boolean('payfast_sandbox'));
         Settings::set('at_sandbox', $request->boolean('at_sandbox'));

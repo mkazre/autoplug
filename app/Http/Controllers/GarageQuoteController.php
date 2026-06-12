@@ -36,6 +36,14 @@ class GarageQuoteController extends Controller
     {
         $this->authorizeQrg($request, $quoteRequestGarage);
 
+        $quoteRequestGarage->loadMissing('quoteRequest');
+
+        // Optionally lock quoting once the customer has accepted a quote for this request.
+        if (Settings::bool('lock_quote_after_accept', true)
+            && optional($quoteRequestGarage->quoteRequest)->status === 'closed') {
+            return back()->with('error', 'This request has already been awarded, so quotes are locked.');
+        }
+
         // Once the response window closes you can no longer submit a first quote.
         if ($quoteRequestGarage->status !== 'quoted' && $quoteRequestGarage->isExpired()) {
             return back()->with('error', 'The response window for this request has closed.');
