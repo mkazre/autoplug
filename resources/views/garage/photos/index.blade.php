@@ -11,6 +11,9 @@
                 @if (session('status'))
                     <div class="mb-4 text-sm text-green-600">{{ session('status') }}</div>
                 @endif
+                @if (session('error'))
+                    <div class="mb-4 text-sm text-red-600">{{ session('error') }}</div>
+                @endif
 
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Upload a photo</h3>
                 <form method="POST" action="{{ route('garage.photos.store') }}" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
@@ -25,6 +28,7 @@
                         <select id="type" name="type" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
                             <option value="workshop">Workshop</option>
                             <option value="product">Product</option>
+                            <option value="affiliation">Affiliation / association logo</option>
                         </select>
                     </div>
                     <div>

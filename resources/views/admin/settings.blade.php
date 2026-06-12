@@ -1,6 +1,9 @@
 @php
     $get = fn ($k, $d = null) => \App\Support\Settings::get($k, $d);
     $bool = fn ($k, $d = false) => \App\Support\Settings::bool($k, $d);
+    $dhm = fn ($m) => [intdiv((int) $m, 1440), intdiv((int) $m % 1440, 60), (int) $m % 60];
+    [$aD, $aH, $aM] = $dhm($get('quote_accept_window_minutes', 2880));
+    [$gD, $gH, $gM] = $dhm($get('garage_response_window_minutes', 2880));
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -91,10 +94,53 @@
             </section>
 
             <section class="bg-white shadow-sm rounded-lg p-6">
+                <h2 class="font-medium text-gray-900 mb-4">Quote timers</h2>
+                <p class="text-sm text-gray-500 mb-4">How long quotes and requests stay live. Set in days, hours and minutes. Leave all at zero to fall back to 48 hours.</p>
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Customer acceptance window</label>
+                        <p class="text-xs text-gray-500 mb-2">Time a customer has to accept a garage's quote before that quote locks.</p>
+                        <div class="flex flex-wrap gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-500">Days</label>
+                                <input name="accept_days" type="number" min="0" max="365" value="{{ old('accept_days', $aD) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500">Hours</label>
+                                <input name="accept_hours" type="number" min="0" max="23" value="{{ old('accept_hours', $aH) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500">Minutes</label>
+                                <input name="accept_minutes" type="number" min="0" max="59" value="{{ old('accept_minutes', $aM) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Garage response window</label>
+                        <p class="text-xs text-gray-500 mb-2">Time a garage has to submit a quote after receiving a request.</p>
+                        <div class="flex flex-wrap gap-3">
+                            <div>
+                                <label class="block text-xs text-gray-500">Days</label>
+                                <input name="garage_days" type="number" min="0" max="365" value="{{ old('garage_days', $gD) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500">Hours</label>
+                                <input name="garage_hours" type="number" min="0" max="23" value="{{ old('garage_hours', $gH) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500">Minutes</label>
+                                <input name="garage_minutes" type="number" min="0" max="59" value="{{ old('garage_minutes', $gM) }}" class="mt-1 w-24 border-gray-300 rounded-md shadow-sm text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white shadow-sm rounded-lg p-6">
                 <h2 class="font-medium text-gray-900 mb-4">Privacy</h2>
                 <label class="flex items-center gap-2">
                     <input type="hidden" name="hide_contact_until_accepted" value="0">
-                    <input type="checkbox" name="hide_contact_until_accepted" value="1" class="rounded border-gray-300 text-indigo-600" @checked($bool('hide_contact_until_accepted', true))>
+                    <input type="checkbox" name="hide_contact_until_accepted" value="1" class="rounded border-gray-300 text-violet-600"@checked($bool('hide_contact_until_accepted', true))>
                     <span class="text-sm text-gray-700">Hide garage phone, email &amp; address from customers until they have an accepted quote</span>
                 </label>
             </section>
@@ -117,7 +163,7 @@
                 </div>
                 <label class="flex items-center gap-2 mt-3">
                     <input type="hidden" name="payfast_sandbox" value="0">
-                    <input type="checkbox" name="payfast_sandbox" value="1" class="rounded border-gray-300 text-indigo-600" @checked($bool('payfast_sandbox', config('payfast.sandbox')))>
+                    <input type="checkbox" name="payfast_sandbox" value="1" class="rounded border-gray-300 text-violet-600" @checked($bool('payfast_sandbox', config('payfast.sandbox')))>
                     <span class="text-sm text-gray-700">Sandbox mode</span>
                 </label>
             </section>
@@ -136,7 +182,7 @@
                 </div>
                 <label class="flex items-center gap-2 mt-3">
                     <input type="hidden" name="at_sandbox" value="0">
-                    <input type="checkbox" name="at_sandbox" value="1" class="rounded border-gray-300 text-indigo-600" @checked($bool('at_sandbox', config('africastalking.sandbox')))>
+                    <input type="checkbox" name="at_sandbox" value="1" class="rounded border-gray-300 text-violet-600" @checked($bool('at_sandbox', config('africastalking.sandbox')))>
                     <span class="text-sm text-gray-700">Sandbox mode</span>
                 </label>
             </section>

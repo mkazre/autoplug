@@ -23,12 +23,14 @@ Route::get('/', function () {
         ->whereHas('branches', fn ($q) => $q->where('is_active', true))
         ->withAvg('reviews', 'rating')
         ->withCount('reviews')
-        ->with(['branches' => fn ($q) => $q->where('is_active', true)])
+        ->with(['branches' => fn ($q) => $q->where('is_active', true), 'photos' => fn ($q) => $q->where('type', 'affiliation')])
         ->orderByDesc('reviews_avg_rating')
         ->take(6)
         ->get();
 
-    return view('home', compact('featured'));
+    $blocks = json_decode(\App\Support\Settings::get('home_blocks', '[]'), true) ?: [];
+
+    return view('home', compact('featured', 'blocks'));
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search');

@@ -3,6 +3,12 @@
     $canRequest = auth()->check() && auth()->user()->hasRole('car_owner');
 @endphp
 <x-public-layout :title="'Find a garage — '.$brand">
+    <style>
+        .ap-pin { display:inline-flex; align-items:center; gap:6px; background:var(--ap-color,#7c3aed); color:#fff; padding:4px 10px 4px 6px; border-radius:9999px; font-size:12px; font-weight:600; line-height:1; box-shadow:0 2px 6px rgba(0,0,0,.3); white-space:nowrap; max-width:170px; }
+        .ap-pin-dot { width:8px; height:8px; border-radius:9999px; background:#fff; flex:none; }
+        .ap-pin-label { overflow:hidden; text-overflow:ellipsis; }
+    </style>
+
     <h1 class="text-2xl font-bold mb-3 text-gray-900">Find a garage near you</h1>
 
     {{-- Map on top --}}
@@ -13,6 +19,7 @@
           class="bg-white shadow-sm rounded-2xl p-4 mt-6">
         <input type="hidden" name="lat" id="lat" value="{{ $lat }}">
         <input type="hidden" name="lng" id="lng" value="{{ $lng }}">
+        <input type="hidden" name="searched" id="searched" value="{{ request('searched') }}">
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             <div class="md:col-span-5">
@@ -92,7 +99,7 @@
                             <input type="checkbox" name="branch_ids[]" value="{{ $branch->id }}" class="mt-1 rounded border-gray-300 text-violet-600">
                             <span class="flex-1">
                                 <span class="flex items-center justify-between">
-                                    <span class="font-semibold text-gray-900">{{ $branch->garage->name }}</span>
+                                    <span class="font-semibold text-gray-900 inline-flex items-center gap-2">{{ $branch->garage->name }} <x-verified-badge :garage="$branch->garage" /></span>
                                     <span class="shrink-0 inline-flex px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700 text-xs font-medium">{{ round($branch->distance, 1) }} km</span>
                                 </span>
                                 <span class="block text-sm text-gray-600 mt-0.5">{{ $branch->name }}@if ($branch->address) — {{ $branch->address }}@endif</span>
@@ -103,6 +110,7 @@
                                         @endforeach
                                     </span>
                                 @endif
+                                <x-affiliation-logos :garage="$branch->garage" />
                             </span>
                         </label>
                     @endforeach
@@ -116,7 +124,7 @@
                     <div class="bg-white shadow-sm rounded-2xl p-5 hover:shadow-md transition">
                         <div class="flex items-start justify-between">
                             <div>
-                                <h3 class="font-semibold text-gray-900">{{ $branch->garage->name }}</h3>
+                                <h3 class="font-semibold text-gray-900 flex items-center gap-2">{{ $branch->garage->name }} <x-verified-badge :garage="$branch->garage" /></h3>
                                 <p class="text-sm text-gray-600">{{ $branch->name }}@if ($branch->address) — {{ $branch->address }}@endif</p>
                             </div>
                             <span class="shrink-0 inline-flex px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-700 text-xs font-medium">{{ round($branch->distance, 1) }} km</span>
@@ -128,6 +136,7 @@
                                 @endforeach
                             </div>
                         @endif
+                        <x-affiliation-logos :garage="$branch->garage" />
                     </div>
                 @endforeach
             </div>
@@ -143,19 +152,42 @@
         window.searchCenter = @if ($lat && $lng) { lat: {{ $lat }}, lng: {{ $lng }} } @else null @endif;
 
         let map;
+
+        function apContent(label, color) {
+            const el = document.createElement('div');
+            el.className = 'ap-pin';
+            el.style.setProperty('--ap-color', color);
+            const dot = document.createElement('span');
+            dot.className = 'ap-pin-dot';
+            const txt = document.createElement('span');
+            txt.className = 'ap-pin-label';
+            txt.textContent = label;
+            el.appendChild(dot);
+            el.appendChild(txt);
+            return el;
+        }
+
         function initMap() {
             const fallback = { lat: -26.2041, lng: 28.0473 };
             const center = window.searchCenter || fallback;
-            map = new google.maps.Map(document.getElementById('map'), { center: center, zoom: window.searchCenter ? 11 : 6 });
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: center,
+                zoom: window.searchCenter ? 11 : 6,
+                mapId: 'DEMO_MAP_ID',
+            });
+
+            const AdvancedMarker = google.maps.marker.AdvancedMarkerElement;
 
             if (window.searchCenter) {
-                new google.maps.Marker({ position: window.searchCenter, map: map, title: 'Your location', icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' });
+                new AdvancedMarker({ map: map, position: window.searchCenter, content: apContent('You', '#2563eb'), title: 'Your location' });
             }
+
             (window.branchMarkers || []).forEach(function (b) {
-                const marker = new google.maps.Marker({ position: { lat: b.lat, lng: b.lng }, map: map, title: b.name });
+                const marker = new AdvancedMarker({ map: map, position: { lat: b.lat, lng: b.lng }, content: apContent(b.garage, '#7c3aed'), title: b.name });
                 const info = new google.maps.InfoWindow({ content: '<strong>' + b.garage + '</strong><br>' + b.name + '<br>' + b.distance + ' km' });
-                marker.addListener('click', function () { info.open(map, marker); });
+                marker.addListener('click', function () { info.open({ map: map, anchor: marker }); });
             });
+
             const input = document.getElementById('address');
             if (input && google.maps.places && google.maps.places.Autocomplete) {
                 const ac = new google.maps.places.Autocomplete(input, { fields: ['geometry'] });
@@ -165,6 +197,18 @@
                         document.getElementById('lat').value = place.geometry.location.lat();
                         document.getElementById('lng').value = place.geometry.location.lng();
                     }
+                });
+            }
+
+            const _addr = document.getElementById('address').value.trim();
+            if (_addr && !document.getElementById('lat').value && !document.getElementById('searched').value) {
+                document.getElementById('searched').value = '1';
+                new google.maps.Geocoder().geocode({ address: _addr }, function (results, status) {
+                    if (status === 'OK' && results[0]) {
+                        document.getElementById('lat').value = results[0].geometry.location.lat();
+                        document.getElementById('lng').value = results[0].geometry.location.lng();
+                    }
+                    document.getElementById('search-form').submit();
                 });
             }
         }
@@ -179,6 +223,7 @@
         }
 
         document.getElementById('search-form').addEventListener('submit', function (e) {
+            document.getElementById('searched').value = '1';
             const addr = document.getElementById('address').value.trim();
             const lat = document.getElementById('lat').value;
             if (addr && !lat && window.google && window.google.maps) {
@@ -193,5 +238,5 @@
             }
         });
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('maps.key') }}&libraries=places&loading=async&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('maps.key') }}&libraries=places,marker&loading=async&callback=initMap" async defer></script>
 </x-public-layout>

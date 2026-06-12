@@ -31,13 +31,33 @@ class SettingsController extends Controller
             'at_api_key' => ['nullable', 'string', 'max:255'],
             'logo' => ['nullable', 'image', 'max:2048'],
             'favicon' => ['nullable', 'file', 'mimes:png,ico,jpg,jpeg,svg', 'max:512'],
+            'accept_days' => ['nullable', 'integer', 'min:0', 'max:365'],
+            'accept_hours' => ['nullable', 'integer', 'min:0', 'max:23'],
+            'accept_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
+            'garage_days' => ['nullable', 'integer', 'min:0', 'max:365'],
+            'garage_hours' => ['nullable', 'integer', 'min:0', 'max:23'],
+            'garage_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
         ]);
 
-        unset($data['logo'], $data['favicon']);
+        unset(
+            $data['logo'], $data['favicon'],
+            $data['accept_days'], $data['accept_hours'], $data['accept_minutes'],
+            $data['garage_days'], $data['garage_hours'], $data['garage_minutes'],
+        );
 
         foreach ($data as $key => $value) {
             Settings::set($key, $value ?? '');
         }
+
+        // Quote timer windows, stored as total minutes (fall back to 48h if left blank/zero).
+        $acceptMinutes = (int) $request->input('accept_days', 0) * 1440
+            + (int) $request->input('accept_hours', 0) * 60
+            + (int) $request->input('accept_minutes', 0);
+        $garageMinutes = (int) $request->input('garage_days', 0) * 1440
+            + (int) $request->input('garage_hours', 0) * 60
+            + (int) $request->input('garage_minutes', 0);
+        Settings::set('quote_accept_window_minutes', $acceptMinutes > 0 ? $acceptMinutes : 2880);
+        Settings::set('garage_response_window_minutes', $garageMinutes > 0 ? $garageMinutes : 2880);
 
         Settings::set('hide_contact_until_accepted', $request->boolean('hide_contact_until_accepted'));
         Settings::set('payfast_sandbox', $request->boolean('payfast_sandbox'));

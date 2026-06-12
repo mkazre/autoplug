@@ -6,6 +6,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class GarageForm
@@ -35,6 +36,9 @@ class GarageForm
                     ])
                     ->required()
                     ->default('pending'),
+                Toggle::make('verified')
+                    ->label('Verified garage')
+                    ->helperText('Shows a green "Verified" badge on the public site.'),
                 Textarea::make('admin_notes')
                     ->label('Admin notes')
                     ->default(null)

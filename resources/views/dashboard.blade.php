@@ -42,7 +42,7 @@
                                 <span class="text-xs text-gray-500">{{ $r->request_garages_count }} garage(s) • {{ ucfirst($r->status) }}</span>
                             </a>
                         @empty
-                            <p class="text-sm text-gray-500">No requests yet. <a href="{{ route('search') }}" class="text-indigo-600 underline">Find a garage</a>.</p>
+                            <p class="text-sm text-gray-500">No requests yet. <a href="{{ route('search') }}" class="text-violet-600 underline">Find a garage</a>.</p>
                         @endforelse
                     </div>
 

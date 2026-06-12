@@ -16,7 +16,7 @@
                 </div>
 
                 @if ($requests->isEmpty())
-                    <p class="text-sm text-gray-500">You haven't requested any quotes yet. <a href="{{ route('search') }}" class="text-indigo-600 underline">Find a garage</a>.</p>
+                    <p class="text-sm text-gray-500">You haven't requested any quotes yet. <a href="{{ route('search') }}" class="text-violet-600 underline">Find a garage</a>.</p>
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach ($requests as $r)

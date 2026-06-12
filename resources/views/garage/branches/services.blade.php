@@ -68,7 +68,7 @@
                                                 @method('PUT')
                                                 <input type="number" step="0.01" min="0" name="price" value="{{ $gs->price }}" placeholder="Price" class="w-28 border-gray-300 rounded-md shadow-sm text-sm">
                                                 <input type="text" name="notes" value="{{ $gs->notes }}" placeholder="Notes" class="flex-1 min-w-40 border-gray-300 rounded-md shadow-sm text-sm">
-                                                <button type="submit" class="text-indigo-600 hover:text-indigo-900 text-sm">Save</button>
+                                                <button type="submit" class="text-violet-600 hover:text-violet-900 text-sm">Save</button>
                                             </form>
                                         </td>
                                         <td class="py-2 pr-4 text-right align-top">

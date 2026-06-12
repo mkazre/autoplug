@@ -13,11 +13,12 @@ class Garage extends Model
 {
     protected $fillable = [
         'user_id', 'name', 'logo', 'description',
-        'status', 'admin_notes', 'reviewed_at',
+        'status', 'verified', 'admin_notes', 'reviewed_at',
     ];
 
     protected $casts = [
         'user_id' => 'integer',
+        'verified' => 'boolean',
         'reviewed_at' => 'datetime',
     ];
 

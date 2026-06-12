@@ -1,6 +1,6 @@
 @php
     $tab = fn (string $pattern) => request()->routeIs($pattern)
-        ? 'border-indigo-500 text-indigo-600'
+        ? 'border-violet-500 text-violet-600'
         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
 @endphp
 <nav class="bg-white shadow-sm sm:rounded-lg px-4">

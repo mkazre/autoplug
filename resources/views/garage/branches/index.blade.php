@@ -42,7 +42,7 @@
                                         </td>
                                         <td class="py-2 pr-4 text-right whitespace-nowrap">
                                             <a href="{{ route('garage.branches.services.index', $branch) }}" class="text-gray-600 hover:text-gray-900">Services</a>
-                                            <a href="{{ route('garage.branches.edit', $branch) }}" class="ms-3 text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <a href="{{ route('garage.branches.edit', $branch) }}" class="ms-3 text-violet-600 hover:text-violet-900">Edit</a>
                                             <form method="POST" action="{{ route('garage.branches.destroy', $branch) }}" class="inline" onsubmit="return confirm('Delete this branch?');">
                                                 @csrf
                                                 @method('DELETE')

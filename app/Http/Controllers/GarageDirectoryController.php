@@ -15,7 +15,10 @@ class GarageDirectoryController extends Controller
         $garages = Garage::approved()
             ->whereHas('branches', fn ($q) => $q->where('is_active', true))
             ->when($search, fn ($q) => $q->where('name', 'like', '%'.$search.'%'))
-            ->with(['branches' => fn ($q) => $q->where('is_active', true)])
+            ->with([
+                'branches' => fn ($q) => $q->where('is_active', true),
+                'photos' => fn ($q) => $q->where('type', 'affiliation'),
+            ])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->orderBy('name')

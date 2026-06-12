@@ -6,13 +6,13 @@
         'green' => 'from-emerald-100 to-emerald-50',
         'blue' => 'from-blue-100 to-blue-50',
         'pink' => 'from-fuchsia-100 to-fuchsia-50',
-        'indigo' => 'from-indigo-100 to-indigo-50',
+        'indigo' => 'from-violet-100 to-violet-50',
         'yellow' => 'from-amber-100 to-amber-50',
         'slate' => 'from-slate-100 to-slate-50',
     ][$color] ?? 'from-violet-100 to-violet-50';
     $chip = [
         'violet' => 'bg-violet-500', 'orange' => 'bg-orange-500', 'green' => 'bg-emerald-500', 'blue' => 'bg-blue-500',
-        'pink' => 'bg-fuchsia-500', 'indigo' => 'bg-indigo-500', 'yellow' => 'bg-amber-500', 'slate' => 'bg-slate-500',
+        'pink' => 'bg-fuchsia-500', 'indigo' => 'bg-violet-500', 'yellow' => 'bg-amber-500', 'slate' => 'bg-slate-500',
     ][$color] ?? 'bg-violet-500';
 @endphp
 @if ($href)

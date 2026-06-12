@@ -1,7 +1,7 @@
 @props(['booking', 'action', 'label', 'color' => 'indigo'])
 @php
     $colors = [
-        'indigo' => 'bg-indigo-600 hover:bg-indigo-500 text-white',
+        'indigo' => 'bg-violet-600 hover:bg-violet-500 text-white',
         'green' => 'bg-green-600 hover:bg-green-500 text-white',
         'red' => 'bg-white border border-red-300 text-red-700 hover:bg-red-50',
     ];

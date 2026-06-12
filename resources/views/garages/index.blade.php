@@ -19,7 +19,7 @@
                             <div class="h-12 w-12 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-lg font-bold">{{ substr($garage->name, 0, 1) }}</div>
                         @endif
                         <div>
-                            <h3 class="font-semibold text-gray-900">{{ $garage->name }}</h3>
+                            <h3 class="font-semibold text-gray-900 flex items-center gap-2">{{ $garage->name }} <x-verified-badge :garage="$garage" /></h3>
                             <p class="text-xs text-gray-500">{{ $garage->branches->count() }} branch(es)</p>
                             @if ($garage->reviews_count)
                                 <p class="text-amber-500 text-sm leading-none mt-0.5">{!! str_repeat('★', (int) round($garage->reviews_avg_rating)) !!}<span class="text-gray-300">{!! str_repeat('★', 5 - (int) round($garage->reviews_avg_rating)) !!}</span> <span class="text-gray-400 text-xs">({{ $garage->reviews_count }})</span></p>
@@ -32,6 +32,7 @@
                     @if ($garage->branches->first()?->address)
                         <p class="text-xs text-gray-400 mt-2">{{ $garage->branches->first()->address }}</p>
                     @endif
+                    <x-affiliation-logos :garage="$garage" />
                 </a>
             @endforeach
         </div>

@@ -29,7 +29,7 @@
                                     <td class="py-2 pr-4 text-gray-600">{{ $v->year ?: '—' }}</td>
                                     <td class="py-2 pr-4 text-gray-600">{{ $v->registration ?: '—' }}</td>
                                     <td class="py-2 pr-4 text-right whitespace-nowrap">
-                                        <a href="{{ route('fleet.vehicles.edit', $v) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                        <a href="{{ route('fleet.vehicles.edit', $v) }}" class="text-violet-600 hover:text-violet-900">Edit</a>
                                         <form method="POST" action="{{ route('fleet.vehicles.destroy', $v) }}" class="inline" onsubmit="return confirm('Remove this vehicle?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="ms-3 text-red-600 hover:text-red-900">Delete</button>

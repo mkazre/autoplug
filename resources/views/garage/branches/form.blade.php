@@ -47,7 +47,7 @@
 
                     <div class="mt-4 flex items-center">
                         <input type="hidden" name="is_active" value="0">
-                        <input id="is_active" name="is_active" type="checkbox" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm"
+                        <input id="is_active" name="is_active" type="checkbox" value="1" class="rounded border-gray-300 text-violet-600 shadow-sm"
                                @checked(old('is_active', $editing ? $branch->is_active : true)) />
                         <label for="is_active" class="ms-2 text-sm text-gray-700">Active (visible in search)</label>
                     </div>

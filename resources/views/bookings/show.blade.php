@@ -28,7 +28,7 @@
                 @elseif (in_array($booking->status, ['pending', 'confirmed']) && $booking->quote && $booking->quote->total_price > 0)
                     <form method="POST" action="{{ route('bookings.pay', $booking) }}" class="mt-4">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500">Pay R{{ number_format($booking->quote->total_price, 2) }} with PayFast</button>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Pay R{{ number_format($booking->quote->total_price, 2) }} with PayFast</button>
                     </form>
                 @endif
 

@@ -34,7 +34,7 @@
                         </div>
                     </template>
 
-                    <button type="button" @click="items.push({ description: '', price: '' })" class="text-sm text-indigo-600 hover:text-indigo-800">+ Add item</button>
+                    <button type="button" @click="items.push({ description: '', price: '' })" class="text-sm text-violet-600 hover:text-violet-800">+ Add item</button>
 
                     <div class="mt-2 text-right text-sm font-medium text-gray-900">
                         Total: R<span x-text="items.reduce((s, i) => s + (parseFloat(i.price) || 0), 0).toFixed(2)"></span>

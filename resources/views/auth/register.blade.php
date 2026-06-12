@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Create a free account">
     <style>[x-cloak]{display:none!important}</style>
 
     <form method="POST" action="{{ route('register') }}"

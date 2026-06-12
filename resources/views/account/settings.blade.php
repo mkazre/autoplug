@@ -17,12 +17,12 @@
                     <h3 class="font-medium text-gray-900 mb-3">Notifications</h3>
                     <label class="flex items-center gap-2 mb-2">
                         <input type="hidden" name="notify_email" value="0">
-                        <input type="checkbox" name="notify_email" value="1" class="rounded border-gray-300 text-indigo-600" @checked($user->prefersEmail())>
+                        <input type="checkbox" name="notify_email" value="1" class="rounded border-gray-300 text-violet-600" @checked($user->prefersEmail())>
                         <span class="text-sm text-gray-700">Email notifications</span>
                     </label>
                     <label class="flex items-center gap-2">
                         <input type="hidden" name="notify_sms" value="0">
-                        <input type="checkbox" name="notify_sms" value="1" class="rounded border-gray-300 text-indigo-600" @checked($user->prefersSms())>
+                        <input type="checkbox" name="notify_sms" value="1" class="rounded border-gray-300 text-violet-600" @checked($user->prefersSms())>
                         <span class="text-sm text-gray-700">SMS notifications (requires a phone number on your profile)</span>
                     </label>
 

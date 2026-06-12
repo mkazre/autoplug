@@ -25,9 +25,13 @@ class GaragePhotoController extends Controller
 
         $data = $request->validate([
             'photo' => ['required', 'image', 'max:4096'],
-            'type' => ['required', 'in:workshop,product'],
+            'type' => ['required', 'in:workshop,product,affiliation'],
             'branch_id' => ['nullable', 'integer'],
         ]);
+
+        if ($data['type'] === 'affiliation' && $garage->photos()->where('type', 'affiliation')->count() >= 5) {
+            return back()->with('error', 'You can upload up to 5 affiliation logos.');
+        }
 
         $branchId = null;
         if (! empty($data['branch_id'])) {

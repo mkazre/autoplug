@@ -36,7 +36,11 @@ class SearchController extends Controller
                 ->where('is_active', true)
                 ->whereHas('garage', fn ($q) => $q->where('status', 'approved'))
                 ->when($serviceId, fn ($q) => $q->whereHas('services', fn ($s) => $s->where('service_id', $serviceId)))
-                ->with(['garage', 'services.service'])
+                ->with([
+                    'garage',
+                    'garage.photos' => fn ($q) => $q->where('type', 'affiliation'),
+                    'services.service',
+                ])
                 ->get();
 
             $this->applyContactPrivacy($branches, $request->user());
