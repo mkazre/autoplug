@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <audio x-ref="chime" src="/sounds/notify.mp3" preload="auto"></audio>
+    <audio x-ref="chime" src="/sounds/notify.wav" preload="auto"></audio>
 </div>
 
 <style>[x-cloak]{display:none!important;}</style>
