@@ -72,7 +72,7 @@
         @endif
 
         @if ($canRequest && $branches->isNotEmpty())
-            <form method="POST" action="{{ route('quotes.store') }}">
+            <form method="POST" action="{{ route('quotes.store') }}" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="lat" value="{{ $lat }}">
                 <input type="hidden" name="lng" value="{{ $lng }}">
@@ -88,6 +88,26 @@
                         <input name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="Model" class="border-gray-300 rounded-lg shadow-sm text-sm">
                         <input name="vehicle_year" value="{{ old('vehicle_year') }}" placeholder="Year" class="border-gray-300 rounded-lg shadow-sm text-sm">
                         <input name="vehicle_reg" value="{{ old('vehicle_reg') }}" placeholder="Reg" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                    </div>
+                    <div class="mt-3" x-data="{ files: [], max: 5,
+                            add(e){ this.files = this.files.concat(Array.from(e.target.files)).slice(0, this.max); this.sync(e.target); },
+                            remove(i, input){ this.files.splice(i, 1); this.sync(input); },
+                            sync(input){ let dt = new DataTransfer(); this.files.forEach(f => dt.items.add(f)); input.files = dt.files; },
+                            url(f){ return URL.createObjectURL(f); } }">
+                        <label class="block text-sm text-gray-700">Add photos (optional, up to 5)</label>
+                        <input type="file" name="images[]" accept="image/*" multiple x-ref="imgs" @change="add($event)"
+                               class="mt-1 block w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100">
+                        <p class="text-xs text-gray-400 mt-1" x-show="files.length"><span x-text="files.length"></span> of 5 selected</p>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <template x-for="(f, i) in files" :key="i">
+                                <div class="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200">
+                                    <img :src="url(f)" class="w-full h-full object-cover" alt="">
+                                    <button type="button" @click="remove(i, $refs.imgs)" class="absolute top-0 right-0 bg-black/50 text-white text-xs w-5 h-5 leading-5 text-center">&times;</button>
+                                </div>
+                            </template>
+                        </div>
+                        <x-input-error :messages="$errors->get('images')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('images.0')" class="mt-1" />
                     </div>
                     <p class="text-xs text-gray-400 mt-2">Tick the garages below, then send.</p>
                     <x-input-error :messages="$errors->get('branch_ids')" class="mt-2" />

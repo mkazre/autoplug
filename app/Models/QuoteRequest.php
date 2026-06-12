@@ -10,7 +10,7 @@ class QuoteRequest extends Model
 {
     protected $fillable = [
         'user_id', 'vehicle_id', 'service_id', 'description',
-        'lat', 'lng', 'radius_km', 'status',
+        'lat', 'lng', 'radius_km', 'status', 'images',
     ];
 
     protected $casts = [
@@ -18,12 +18,12 @@ class QuoteRequest extends Model
         'vehicle_id' => 'integer',
         'service_id' => 'integer',
         'radius_km' => 'integer',
+        'images' => 'array',
     ];
 
     /**
      * Derived status for display: open | accepted | expired | cancelled.
      * "open" while any garage can still quote, or any submitted quote is still live.
-     * Relies on requestGarages (with their quote) being loaded.
      */
     public function displayStatus(): string
     {

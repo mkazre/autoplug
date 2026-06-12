@@ -24,6 +24,13 @@
                 @if ($quoteRequest->vehicle)
                     <p class="text-sm text-gray-500 mt-1">Vehicle: {{ $quoteRequest->vehicle->make }} {{ $quoteRequest->vehicle->model }} {{ $quoteRequest->vehicle->year }} {{ $quoteRequest->vehicle->registration }}</p>
                 @endif
+                @if (is_array($quoteRequest->images) && count($quoteRequest->images))
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @foreach ($quoteRequest->images as $img)
+                            <a href="{{ asset('storage/'.$img) }}" target="_blank"><img src="{{ asset('storage/'.$img) }}" class="w-20 h-20 object-cover rounded-lg border border-gray-200" alt="Attached photo"></a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <h3 class="text-lg font-medium text-gray-900">Compare quotes</h3>

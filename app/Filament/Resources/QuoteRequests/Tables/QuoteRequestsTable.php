@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\QuoteRequests\Tables;
 
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -21,6 +22,14 @@ class QuoteRequestsTable
                 TextColumn::make('vehicle.make')->label('Make')->toggleable()->placeholder('—'),
                 TextColumn::make('vehicle.model')->label('Model')->toggleable()->placeholder('—'),
                 TextColumn::make('description')->limit(40)->toggleable()->placeholder('—'),
+                ImageColumn::make('images')
+                    ->label('Photos')
+                    ->disk('public')
+                    ->circular()
+                    ->stacked()
+                    ->limit(3)
+                    ->limitedRemainingText()
+                    ->toggleable(),
                 TextColumn::make('request_garages_count')->counts('requestGarages')->label('Garages'),
                 TextColumn::make('status')
                     ->badge()

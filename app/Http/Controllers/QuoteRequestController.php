@@ -39,6 +39,8 @@ class QuoteRequestController extends Controller
             'vehicle_model' => ['nullable', 'string', 'max:100'],
             'vehicle_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'vehicle_reg' => ['nullable', 'string', 'max:30'],
+            'images' => ['nullable', 'array', 'max:5'],
+            'images.*' => ['image', 'max:4096'],
         ]);
 
         $user = $request->user();
@@ -53,10 +55,18 @@ class QuoteRequestController extends Controller
             ])->id;
         }
 
+        $imagePaths = [];
+        foreach ((array) $request->file('images', []) as $img) {
+            if ($img) {
+                $imagePaths[] = $img->store('quote-requests', 'public');
+            }
+        }
+
         $quoteRequest = $user->quoteRequests()->create([
             'vehicle_id' => $vehicleId,
             'service_id' => $data['service_id'] ?? null,
             'description' => $data['description'] ?? null,
+            'images' => $imagePaths ?: null,
             'lat' => $data['lat'] ?? null,
             'lng' => $data['lng'] ?? null,
             'radius_km' => $data['radius'] ?? 15,
@@ -107,8 +117,6 @@ class QuoteRequestController extends Controller
         $quote->update(['status' => 'accepted']);
         $qrg->update(['status' => 'accepted']);
 
-        // Reject the other garages' quotes and mark those bids (the ones that actually
-        // quoted) as lost, so win/lose stats only count real competitors.
         Quote::whereHas('quoteRequestGarage', fn ($q) => $q->where('quote_request_id', $quoteRequest->id))
             ->where('id', '!=', $quote->id)
             ->update(['status' => 'rejected']);

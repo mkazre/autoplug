@@ -24,6 +24,13 @@
                 @if ($qrg->quoteRequest?->vehicle)
                     <p class="text-sm text-gray-500 mt-1">Vehicle: {{ $qrg->quoteRequest->vehicle->make }} {{ $qrg->quoteRequest->vehicle->model }} {{ $qrg->quoteRequest->vehicle->year }} {{ $qrg->quoteRequest->vehicle->registration }}</p>
                 @endif
+                @if (is_array($qrg->quoteRequest?->images) && count($qrg->quoteRequest->images))
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @foreach ($qrg->quoteRequest->images as $img)
+                            <a href="{{ asset('storage/'.$img) }}" target="_blank"><img src="{{ asset('storage/'.$img) }}" class="w-20 h-20 object-cover rounded-lg border border-gray-200" alt="Attached photo"></a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             <div class="bg-white shadow-sm sm:rounded-lg p-6 {{ $won ? 'ring-1 ring-green-300' : '' }}">
