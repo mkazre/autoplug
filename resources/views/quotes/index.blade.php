@@ -20,12 +20,21 @@
                 @else
                     <div class="divide-y divide-gray-100">
                         @foreach ($requests as $r)
+                            @php
+                                $ds = $r->displayStatus();
+                                $badge = [
+                                    'open' => ['Open', 'bg-blue-100 text-blue-700'],
+                                    'accepted' => ['Accepted', 'bg-green-100 text-green-800'],
+                                    'expired' => ['Expired', 'bg-red-100 text-red-700'],
+                                    'cancelled' => ['Cancelled', 'bg-gray-100 text-gray-500'],
+                                ][$ds] ?? [ucfirst($ds), 'bg-gray-100 text-gray-700'];
+                            @endphp
                             <a href="{{ route('quotes.show', $r) }}" class="flex items-center justify-between py-3 hover:bg-gray-50 px-2 rounded">
                                 <div>
                                     <div class="font-medium text-gray-900">{{ $r->service?->name ?? 'General request' }}</div>
                                     <div class="text-xs text-gray-500">{{ $r->created_at->diffForHumans() }} • sent to {{ $r->request_garages_count }} garage(s)</div>
                                 </div>
-                                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">{{ ucfirst($r->status) }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full {{ $badge[1] }}">{{ $badge[0] }}</span>
                             </a>
                         @endforeach
                     </div>

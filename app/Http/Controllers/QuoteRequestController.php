@@ -17,7 +17,7 @@ class QuoteRequestController extends Controller
     {
         $requests = $request->user()->quoteRequests()
             ->withCount('requestGarages')
-            ->with('service')
+            ->with(['service', 'requestGarages.quote'])
             ->latest()
             ->get();
 
