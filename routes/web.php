@@ -49,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/account/settings', [App\Http\Controllers\AccountController::class, 'edit'])->name('account.settings');
     Route::put('/account/settings', [App\Http\Controllers\AccountController::class, 'update'])->name('account.settings.update');
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}/go', [App\Http\Controllers\NotificationController::class, 'go'])->name('notifications.go');
+    Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.read-all');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin-export')->name('admin.export.')->group(function () {

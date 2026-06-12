@@ -54,4 +54,18 @@ class GarageStatusUpdated extends Notification
             default => 'Autoplug: update on your garage application.',
         };
     }
+
+    public function toArray(object $notifiable): array
+    {
+        $status = $this->context ?? $this->garage->status;
+
+        $title = match ($status) {
+            'approved' => 'Garage approved',
+            'rejected' => 'Garage not approved',
+            'info_requested' => 'More information needed',
+            default => 'Garage application update',
+        };
+
+        return ['title' => $title, 'body' => $this->garage->name, 'url' => url('/dashboard'), 'icon' => 'wrench'];
+    }
 }

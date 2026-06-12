@@ -37,4 +37,16 @@ class NewQuoteRequest extends Notification
     {
         return 'Autoplug: New quote request for '.$this->branch->name.'. Log in to respond.';
     }
+
+    public function toArray(object $notifiable): array
+    {
+        $service = $this->quoteRequest->service?->name ?? 'a service';
+
+        return [
+            'title' => 'New quote request',
+            'body' => $this->branch->name.' — '.$service,
+            'url' => url('/garage/requests'),
+            'icon' => 'inbox',
+        ];
+    }
 }

@@ -54,11 +54,16 @@ class AdminPanelProvider extends PanelProvider
             .'.fi-wi-stats-overview-stat:nth-child(8n){background:linear-gradient(135deg,#fef9c3,#fefce8);}'
             .'</style>';
 
+        $chime = '<audio id="ap-chime" src="/sounds/notify.mp3" preload="auto"></audio>'
+            .'<script>(function(){var last=null;function poll(){fetch("/notifications",{headers:{"Accept":"application/json"}}).then(function(r){return r.json();}).then(function(d){if(last!==null&&d.unread>last){var a=document.getElementById("ap-chime");if(a){try{a.currentTime=0;a.play();}catch(e){}}}last=d.unread;}).catch(function(){});}poll();setInterval(poll,30000);})();</script>';
+
         $panel
             ->default()
             ->id('admin')
             ->path('admin')
             ->login()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->sidebarWidth('15rem')
             ->maxContentWidth('full')
             ->brandName($brand)
@@ -87,6 +92,7 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(99),
             ])
             ->renderHook('panels::head.end', fn (): string => $css)
+            ->renderHook('panels::body.end', fn (): string => $chime)
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

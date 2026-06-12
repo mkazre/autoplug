@@ -37,4 +37,18 @@ class QuoteReady extends Notification
 
         return 'Autoplug: A quote'.($total !== null ? ' of R'.number_format((float) $total, 2) : '').' is ready. Log in to view.';
     }
+
+    public function toArray(object $notifiable): array
+    {
+        $this->qrg->loadMissing('branch.garage', 'quote');
+        $garage = $this->qrg->branch?->garage?->name ?? 'A garage';
+        $total = $this->qrg->quote?->total_price;
+
+        return [
+            'title' => 'Quote ready'.($total !== null ? ' — R'.number_format((float) $total, 2) : ''),
+            'body' => $garage.' sent you a quote.',
+            'url' => url('/quotes/'.$this->qrg->quote_request_id),
+            'icon' => 'document',
+        ];
+    }
 }

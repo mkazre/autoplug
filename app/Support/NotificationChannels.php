@@ -8,7 +8,8 @@ class NotificationChannels
 {
     public static function for(object $notifiable): array
     {
-        $channels = [];
+        // Always persist in-app (notification bell); add email/SMS per preference.
+        $channels = ['database'];
 
         $wantsEmail = method_exists($notifiable, 'prefersEmail') ? $notifiable->prefersEmail() : true;
         $wantsSms = method_exists($notifiable, 'prefersSms') ? $notifiable->prefersSms() : true;

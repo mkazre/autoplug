@@ -59,4 +59,24 @@ class BookingUpdated extends Notification
             default => 'Autoplug: booking update.',
         };
     }
+
+    public function toArray(object $notifiable): array
+    {
+        $this->booking->loadMissing('branch.garage');
+        $garage = $this->booking->branch?->garage?->name ?? 'the garage';
+        $url = $this->context === 'requested'
+            ? url('/garage/bookings/'.$this->booking->id)
+            : url('/bookings/'.$this->booking->id);
+
+        $title = match ($this->context) {
+            'requested' => 'New booking request',
+            'confirmed' => 'Booking confirmed',
+            'inprogress' => 'Service in progress',
+            'completed' => 'Service completed',
+            'cancelled' => 'Booking cancelled',
+            default => 'Booking updated',
+        };
+
+        return ['title' => $title, 'body' => $garage, 'url' => $url, 'icon' => 'calendar'];
+    }
 }

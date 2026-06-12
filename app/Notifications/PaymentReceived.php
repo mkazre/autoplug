@@ -32,4 +32,14 @@ class PaymentReceived extends Notification
     {
         return 'Autoplug: Payment of R'.number_format((float) $this->payment->amount, 2).' received. Thank you.';
     }
+
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'title' => 'Payment received',
+            'body' => 'R'.number_format((float) $this->payment->amount, 2).' for booking #'.$this->payment->booking_id,
+            'url' => url('/bookings/'.$this->payment->booking_id),
+            'icon' => 'check',
+        ];
+    }
 }
