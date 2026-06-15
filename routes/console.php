@@ -9,3 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('app:expire-stale')->everyMinute();
+
+Schedule::command('app:plan-billing')->dailyAt('06:00');
