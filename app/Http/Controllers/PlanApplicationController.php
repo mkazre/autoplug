@@ -128,6 +128,10 @@ class PlanApplicationController extends Controller
         abort_unless($application && ((int) $application->user_id === (int) $user->id || $user->hasRole('admin')), 403);
         abort_unless(Storage::disk('local')->exists($planApplicationDocument->file_path), 404);
 
+        if ($request->boolean('download')) {
+            return Storage::disk('local')->download($planApplicationDocument->file_path);
+        }
+
         return Storage::disk('local')->response($planApplicationDocument->file_path);
     }
 
