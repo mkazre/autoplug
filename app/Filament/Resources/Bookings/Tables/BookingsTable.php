@@ -10,7 +10,7 @@ class BookingsTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
+        return $table->poll('15s')
             ->defaultSort('scheduled_at', 'desc')
             ->columns([
                 TextColumn::make('id')->label('#')->sortable(),

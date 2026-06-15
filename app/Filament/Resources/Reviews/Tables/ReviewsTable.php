@@ -11,7 +11,7 @@ class ReviewsTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
+        return $table->poll('15s')
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('garage.name')->label('Garage')->searchable(),

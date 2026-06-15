@@ -55,7 +55,11 @@ class AdminPanelProvider extends PanelProvider
             .'</style>';
 
         $chime = '<audio id="ap-chime" src="/sounds/notify.wav" preload="auto"></audio>'
-            .'<script>(function(){var last=null;function poll(){fetch("/notifications",{headers:{"Accept":"application/json"}}).then(function(r){return r.json();}).then(function(d){if(last!==null&&d.unread>last){var a=document.getElementById("ap-chime");if(a){try{a.currentTime=0;a.play();}catch(e){}}}last=d.unread;}).catch(function(){});}poll();setInterval(poll,30000);})();</script>';
+            .'<script>(function(){var last=null;'
+            .'function poll(){fetch("/platform-activity",{headers:{"Accept":"application/json"}}).then(function(r){return r.json();}).then(function(d){if(last!==null&&d.count>last){var a=document.getElementById("ap-chime");if(a){try{a.currentTime=0;a.play();}catch(e){}}}last=d.count;}).catch(function(){});}'
+            .'function prime(){var a=document.getElementById("ap-chime");if(a){a.muted=true;a.play().then(function(){a.pause();a.currentTime=0;a.muted=false;}).catch(function(){a.muted=false;});}document.removeEventListener("pointerdown",prime);document.removeEventListener("keydown",prime);}'
+            .'document.addEventListener("pointerdown",prime);document.addEventListener("keydown",prime);'
+            .'poll();setInterval(poll,15000);})();</script>';
 
         $panel
             ->default()
@@ -63,7 +67,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
+            ->databaseNotificationsPolling('15s')
             ->sidebarWidth('15rem')
             ->maxContentWidth('full')
             ->brandName($brand)

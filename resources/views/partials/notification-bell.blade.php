@@ -27,6 +27,14 @@
         </div>
     </div>
 
+    <!-- Live "new updates" banner -->
+    <div x-show="hasNew" x-cloak class="fixed top-3 inset-x-0 z-[60] flex justify-center px-4 pointer-events-none">
+        <button @click="window.location.reload()" class="pointer-events-auto inline-flex items-center gap-2 bg-violet-600 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg hover:bg-violet-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            New updates available — Refresh
+        </button>
+    </div>
+
     <audio x-ref="chime" src="/sounds/notify.wav" preload="auto"></audio>
 </div>
 
@@ -39,9 +47,24 @@
             unread: 0,
             items: [],
             lastUnread: null,
+            hasNew: false,
             init() {
+                this.primeAudio();
                 this.load(true);
-                setInterval(() => this.load(false), 25000);
+                setInterval(() => this.load(false), 15000);
+            },
+            primeAudio() {
+                const unlock = () => {
+                    const a = this.$refs.chime;
+                    if (a) {
+                        a.muted = true;
+                        a.play().then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => { a.muted = false; });
+                    }
+                    window.removeEventListener('pointerdown', unlock);
+                    window.removeEventListener('keydown', unlock);
+                };
+                window.addEventListener('pointerdown', unlock);
+                window.addEventListener('keydown', unlock);
             },
             toggle() {
                 this.open = ! this.open;
@@ -51,7 +74,10 @@
                 fetch('{{ route('notifications.index') }}', { headers: { 'Accept': 'application/json' } })
                     .then(r => r.json())
                     .then(d => {
-                        if (! first && this.lastUnread !== null && d.unread > this.lastUnread) this.play();
+                        if (! first && this.lastUnread !== null && d.unread > this.lastUnread) {
+                            this.play();
+                            this.hasNew = true;
+                        }
                         this.unread = d.unread;
                         this.lastUnread = d.unread;
                         this.items = d.items;

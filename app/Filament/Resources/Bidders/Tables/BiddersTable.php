@@ -18,7 +18,7 @@ class BiddersTable
 
     public static function configure(Table $table): Table
     {
-        return $table
+        return $table->poll('15s')
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('branch.garage.name')

@@ -14,7 +14,7 @@ class ServicesTable
 {
     public static function configure(Table $table): Table
     {
-        return $table
+        return $table->poll('15s')
             ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')
