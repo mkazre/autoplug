@@ -69,6 +69,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/platform-settings', [App\Http\Controllers\SettingsController::class, 'edit'])->name('platform.settings.edit');
     Route::put('/platform-settings', [App\Http\Controllers\SettingsController::class, 'update'])->name('platform.settings.update');
     Route::get('/platform-activity', [App\Http\Controllers\NotificationController::class, 'activity'])->name('platform.activity');
+    Route::get('/plan-admin/applications/{planApplication}/sign', [App\Http\Controllers\PlanReviewController::class, 'sign'])->name('plan-admin.sign');
+    Route::post('/plan-admin/applications/{planApplication}/sign', [App\Http\Controllers\PlanReviewController::class, 'approve'])->name('plan-admin.approve');
 });
 
 Route::middleware(['auth', 'role:car_owner'])->group(function () {

@@ -12,7 +12,7 @@ class PlanApplication extends Model
     protected $fillable = [
         'user_id', 'vehicle_id', 'plan_product_id', 'pricing_tier_id', 'status',
         'terms_version', 'payment_method', 'referral_code', 'reject_reason',
-        'submitted_at', 'approved_at', 'approved_by',
+        'submitted_at', 'approved_at', 'approved_by', 'admin_signature_path', 'approved_ip',
     ];
 
     protected $casts = [

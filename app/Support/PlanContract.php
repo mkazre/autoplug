@@ -11,15 +11,17 @@ class PlanContract
 {
     public static function generate(PlanSubscription $subscription): string
     {
-        $subscription->loadMissing('application.signature', 'user', 'product', 'tier', 'vehicle', 'installments');
+        $subscription->loadMissing('application.signature', 'application.approver', 'user', 'product', 'tier', 'vehicle', 'installments');
+        $application = $subscription->application;
 
-        $signature = $subscription->application?->signature;
-        $sigDataUri = null;
-        if ($signature && Storage::disk('local')->exists($signature->signature_path)) {
-            $sigDataUri = 'data:image/png;base64,'.base64_encode(Storage::disk('local')->get($signature->signature_path));
-        }
+        $logo = Settings::get('logo');
 
-        $html = view('plans.contract', ['subscription' => $subscription, 'sigDataUri' => $sigDataUri])->render();
+        $html = view('plans.contract', [
+            'subscription' => $subscription,
+            'sigDataUri' => self::imageUri(Storage::disk('local'), $application?->signature?->signature_path),
+            'adminSigUri' => self::imageUri(Storage::disk('local'), $application?->admin_signature_path),
+            'logoUri' => $logo ? self::imageUri(Storage::disk('public'), $logo) : null,
+        ])->render();
 
         $options = new Options();
         $options->set('isRemoteEnabled', false);
@@ -32,5 +34,19 @@ class PlanContract
         Storage::disk('local')->put($path, $dompdf->output());
 
         return $path;
+    }
+
+    private static function imageUri($disk, ?string $path): ?string
+    {
+        if (! $path || ! $disk->exists($path)) {
+            return null;
+        }
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if ($ext === 'svg') {
+            return null; // dompdf SVG support is unreliable; skip
+        }
+        $mime = in_array($ext, ['jpg', 'jpeg']) ? 'image/jpeg' : 'image/png';
+
+        return 'data:'.$mime.';base64,'.base64_encode($disk->get($path));
     }
 }

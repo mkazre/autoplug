@@ -51,8 +51,7 @@ class PlanApplicationsTable
                 Action::make('approve')
                     ->icon('heroicon-o-check-circle')->color('success')
                     ->visible(fn ($record) => in_array($record->status, ['submitted', 'under_review']))
-                    ->requiresConfirmation()
-                    ->action(fn ($record) => PlanLifecycle::approve($record, auth()->id())),
+                    ->url(fn ($record): string => route('plan-admin.sign', $record)),
                 Action::make('requestInfo')
                     ->label('Request info')->icon('heroicon-o-information-circle')->color('warning')
                     ->visible(fn ($record) => in_array($record->status, ['submitted', 'under_review']))

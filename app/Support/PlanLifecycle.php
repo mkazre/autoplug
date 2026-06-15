@@ -6,11 +6,17 @@ use App\Models\PlanApplication;
 use App\Models\PlanInstallment;
 use App\Models\PlanSubscription;
 use App\Notifications\PlanApplicationOutcome;
+use Illuminate\Support\Facades\Storage;
 
 class PlanLifecycle
 {
-    public static function approve(PlanApplication $application, ?int $adminId = null): PlanSubscription
-    {
+    public static function approve(
+        PlanApplication $application,
+        ?int $adminId = null,
+        ?string $adminSignatureDataUrl = null,
+        ?string $adminName = null,
+        ?string $ip = null
+    ): PlanSubscription {
         $application->loadMissing('product', 'tier', 'vehicle', 'user');
         $tier = $application->tier;
         $product = $application->product;
@@ -58,15 +64,25 @@ class PlanLifecycle
             ]);
         }
 
+        $adminSigPath = null;
+        if ($adminSignatureDataUrl) {
+            $parts = explode(',', $adminSignatureDataUrl, 2);
+            $binary = base64_decode(end($parts) ?: '', true) ?: '';
+            $adminSigPath = 'plan-admin-signatures/'.$application->id.'-'.uniqid().'.png';
+            Storage::disk('local')->put($adminSigPath, $binary);
+        }
+
         $application->update([
             'status' => 'approved',
             'approved_at' => now(),
             'approved_by' => $adminId,
+            'approved_ip' => $ip,
+            'admin_signature_path' => $adminSigPath,
         ]);
 
         $subscription->update(['contract_path' => PlanContract::generate($subscription)]);
 
-        PlanAudit::log($application, 'approved', ['subscription_id' => $subscription->id], $adminId);
+        PlanAudit::log($application, 'approved', ['subscription_id' => $subscription->id, 'by' => $adminName], $adminId);
         $application->user?->notify(new PlanApplicationOutcome($application->fresh(), 'approved'));
 
         return $subscription;
