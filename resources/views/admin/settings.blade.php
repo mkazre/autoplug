@@ -142,6 +142,44 @@
             </section>
 
             <section class="bg-white shadow-sm rounded-lg p-6">
+                <h2 class="font-medium text-gray-900 mb-4">Service &amp; Maintenance Plans</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm text-gray-700">Reminder lead (days before due)</label>
+                        <input name="plan_reminder_lead_days" type="number" min="0" max="30" value="{{ old('plan_reminder_lead_days', $get('plan_reminder_lead_days', 3)) }}" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700">Grace period (days)</label>
+                        <input name="plan_grace_days" type="number" min="0" max="90" value="{{ old('plan_grace_days', $get('plan_grace_days', 7)) }}" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700">Suspend after N missed</label>
+                        <input name="plan_suspend_after_missed" type="number" min="1" max="12" value="{{ old('plan_suspend_after_missed', $get('plan_suspend_after_missed', 2)) }}" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700">Referral reward type</label>
+                        @php $rrt = $get('plan_referral_reward_type', 'fixed'); @endphp
+                        <select name="plan_referral_reward_type" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                            <option value="fixed" @selected($rrt === 'fixed')>Fixed amount (R)</option>
+                            <option value="percentage" @selected($rrt === 'percentage')>Percentage of first payment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700">Referral reward value</label>
+                        <input name="plan_referral_reward_value" type="number" step="0.01" min="0" value="{{ old('plan_referral_reward_value', $get('plan_referral_reward_value', 100)) }}" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-gray-700">Payout cycle</label>
+                        @php $pc = $get('plan_payout_cycle', 'monthly'); @endphp
+                        <select name="plan_payout_cycle" class="mt-1 w-full border-gray-300 rounded-md shadow-sm text-sm">
+                            <option value="weekly" @selected($pc === 'weekly')>Weekly</option>
+                            <option value="monthly" @selected($pc === 'monthly')>Monthly</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-white shadow-sm rounded-lg p-6">
                 <h2 class="font-medium text-gray-900 mb-4">Privacy</h2>
                 <label class="flex items-center gap-2">
                     <input type="hidden" name="hide_contact_until_accepted" value="0">

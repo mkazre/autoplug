@@ -90,4 +90,14 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasOne(Fleet::class, 'owner_id');
     }
+
+    public function planApplications(): HasMany
+    {
+        return $this->hasMany(PlanApplication::class);
+    }
+
+    public function planSubscriptions(): HasMany
+    {
+        return $this->hasMany(PlanSubscription::class);
+    }
 }

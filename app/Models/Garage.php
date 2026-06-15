@@ -13,7 +13,7 @@ class Garage extends Model
 {
     protected $fillable = [
         'user_id', 'name', 'logo', 'description',
-        'status', 'verified', 'admin_notes', 'reviewed_at',
+        'status', 'verified', 'admin_notes', 'reviewed_at', 'referral_code',
     ];
 
     protected $casts = [
@@ -40,6 +40,16 @@ class Garage extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(GarageReferral::class, 'referring_garage_id');
+    }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(GaragePayout::class);
     }
 
     public function scopeApproved(Builder $query): Builder

@@ -37,6 +37,12 @@ class SettingsController extends Controller
             'garage_days' => ['nullable', 'integer', 'min:0', 'max:365'],
             'garage_hours' => ['nullable', 'integer', 'min:0', 'max:23'],
             'garage_minutes' => ['nullable', 'integer', 'min:0', 'max:59'],
+            'plan_reminder_lead_days' => ['nullable', 'integer', 'min:0', 'max:30'],
+            'plan_grace_days' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'plan_suspend_after_missed' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'plan_referral_reward_type' => ['nullable', 'in:percentage,fixed'],
+            'plan_referral_reward_value' => ['nullable', 'numeric', 'min:0'],
+            'plan_payout_cycle' => ['nullable', 'in:weekly,monthly'],
         ]);
 
         unset(
