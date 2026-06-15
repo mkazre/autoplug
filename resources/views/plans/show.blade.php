@@ -53,9 +53,17 @@
                 @endif
 
                 @if ($application->subscription)
+                    @php $ssub = $application->subscription; @endphp
                     <div class="mt-5 space-y-1">
-                        <p class="text-sm text-green-700 font-medium">Your plan is active.</p>
-                        @if ($application->subscription->contract_path)<a href="{{ route('plans.contract', $application->subscription) }}" class="text-sm text-violet-600 hover:underline">Download your signed contract (PDF)</a>@endif
+                        @if ($ssub->status === 'pending')
+                            <p class="text-sm text-amber-700 font-medium">Approved — activate your cover by making your first payment.</p>
+                        @elseif ($ssub->status === 'active')
+                            <p class="text-sm text-green-700 font-medium">Your plan is active.</p>
+                        @else
+                            <p class="text-sm text-gray-600 font-medium">Plan status: {{ ucfirst($ssub->status) }}.</p>
+                        @endif
+                        <a href="{{ route('plans.subscriptions.show', $ssub) }}" class="block text-sm text-violet-600 hover:underline">Manage plan &amp; payments &rarr;</a>
+                        @if ($ssub->contract_path)<a href="{{ route('plans.contract', $ssub) }}" class="block text-sm text-violet-600 hover:underline">Download signed contract (PDF)</a>@endif
                     </div>
                 @endif
             </div>

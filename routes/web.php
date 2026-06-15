@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/plan-documents/{planApplicationDocument}', [App\Http\Controllers\PlanApplicationController::class, 'document'])->name('plans.documents.show');
     Route::get('/plan-contracts/{planSubscription}', [App\Http\Controllers\PlanContractController::class, 'download'])->name('plans.contract');
+    Route::get('/plan-payment-proof/{planPayment}', [App\Http\Controllers\PlanBillingController::class, 'proof'])->name('plans.payment-proof');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin-export')->name('admin.export.')->group(function () {
@@ -81,6 +82,7 @@ Route::middleware(['auth', 'role:car_owner'])->group(function () {
         Route::get('/applications/{planApplication}', [App\Http\Controllers\PlanApplicationController::class, 'show'])->name('applications.show');
         Route::get('/subscriptions/{planSubscription}', [App\Http\Controllers\PlanController::class, 'subscription'])->name('subscriptions.show');
         Route::post('/installments/{planInstallment}/pay', [App\Http\Controllers\PlanBillingController::class, 'pay'])->name('installments.pay');
+        Route::post('/manual-pay', [App\Http\Controllers\PlanBillingController::class, 'manualPay'])->name('manual-pay');
     });
 
     Route::prefix('quotes')->name('quotes.')->group(function () {

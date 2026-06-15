@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\PlanApplication;
 use App\Models\PlanInstallment;
 use App\Models\PlanSubscription;
+use App\Notifications\PlanActivated;
 use App\Notifications\PlanApplicationOutcome;
 use Illuminate\Support\Facades\Storage;
 
@@ -37,7 +38,7 @@ class PlanLifecycle
             'pricing_tier_id' => $application->pricing_tier_id,
             'start_date' => $start,
             'end_date' => $end,
-            'status' => 'active',
+            'status' => 'pending', // activates on first payment
             'km_at_start' => $application->vehicle?->odometer_km,
             'current_balance' => $total,
             'total_paid' => 0,
@@ -86,6 +87,18 @@ class PlanLifecycle
         $application->user?->notify(new PlanApplicationOutcome($application->fresh(), 'approved'));
 
         return $subscription;
+    }
+
+    /** Activate cover on the first successful payment. */
+    public static function recordActivation(PlanSubscription $subscription): void
+    {
+        if ($subscription->status === 'pending') {
+            $subscription->update(['status' => 'active']);
+            $subscription->application?->update(['status' => 'active']);
+            $subscription->loadMissing('user');
+            $subscription->user?->notify(new PlanActivated($subscription));
+            PlanAudit::log($subscription, 'activated', []);
+        }
     }
 
     public static function reject(PlanApplication $application, string $reason, ?int $adminId = null): void

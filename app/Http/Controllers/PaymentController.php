@@ -143,6 +143,7 @@ class PaymentController extends Controller
                     if ($subscription->status === 'suspended') {
                         $subscription->update(['status' => 'active', 'missed_count' => 0]);
                     }
+                    \App\Support\PlanLifecycle::recordActivation($subscription);
                     $subscription->user?->notify(new PlanPaymentReceived($pp));
                 }
             }

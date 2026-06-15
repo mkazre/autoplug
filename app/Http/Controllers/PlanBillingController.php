@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\PlanInstallment;
 use App\Models\PlanPayment;
+use App\Models\User;
+use App\Notifications\ManualPaymentSubmitted;
 use App\Support\PayFast;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PlanBillingController extends Controller
 {
@@ -26,6 +29,7 @@ class PlanBillingController extends Controller
             'plan_subscription_id' => $subscription->id,
             'plan_installment_id' => $planInstallment->id,
             'gateway' => 'payfast',
+            'method' => 'card',
             'amount' => $amount,
             'status' => 'pending',
             'reference' => $reference,
@@ -43,5 +47,51 @@ class PlanBillingController extends Controller
         ]);
 
         return view('payments.redirect', ['action' => PayFast::processUrl(), 'fields' => $fields]);
+    }
+
+    public function manualPay(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'installment_id' => ['required', 'integer', 'exists:plan_installments,id'],
+            'method' => ['required', 'in:eft,deposit'],
+            'amount' => ['required', 'numeric', 'min:0'],
+            'txn_reference' => ['required', 'string', 'max:120'],
+            'paid_on' => ['required', 'date', 'before_or_equal:today'],
+            'proof' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:8192'],
+        ]);
+
+        $installment = PlanInstallment::findOrFail($data['installment_id']);
+        $subscription = $installment->subscription;
+        abort_unless($subscription && (int) $subscription->user_id === (int) $request->user()->id, 403);
+        abort_if($installment->status === 'paid', 422, 'This installment is already paid.');
+
+        $proofPath = $request->file('proof')->store('plan-payment-proofs/'.$subscription->id, 'local');
+
+        $payment = PlanPayment::create([
+            'plan_subscription_id' => $subscription->id,
+            'plan_installment_id' => $installment->id,
+            'gateway' => 'manual',
+            'method' => $data['method'],
+            'amount' => $data['amount'],
+            'reference' => 'PLANM-'.$installment->id.'-'.now()->timestamp,
+            'txn_reference' => $data['txn_reference'],
+            'paid_on' => $data['paid_on'],
+            'proof_path' => $proofPath,
+            'status' => 'pending',
+        ]);
+
+        User::role('admin')->get()->each(fn ($a) => $a->notify(new ManualPaymentSubmitted($payment)));
+
+        return back()->with('status', 'Proof of payment submitted — we will verify it and activate your cover shortly.');
+    }
+
+    public function proof(Request $request, PlanPayment $planPayment)
+    {
+        $user = $request->user();
+        $subscription = $planPayment->subscription;
+        abort_unless($subscription && ((int) $subscription->user_id === (int) $user->id || $user->hasRole('admin')), 403);
+        abort_unless($planPayment->proof_path && Storage::disk('local')->exists($planPayment->proof_path), 404);
+
+        return Storage::disk('local')->response($planPayment->proof_path);
     }
 }
