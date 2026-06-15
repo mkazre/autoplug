@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications/{notification}/go', [App\Http\Controllers\NotificationController::class, 'go'])->name('notifications.go');
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/plan-documents/{planApplicationDocument}', [App\Http\Controllers\PlanApplicationController::class, 'document'])->name('plans.documents.show');
+    Route::get('/plan-contracts/{planSubscription}', [App\Http\Controllers\PlanContractController::class, 'download'])->name('plans.contract');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin-export')->name('admin.export.')->group(function () {

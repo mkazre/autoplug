@@ -53,7 +53,10 @@
                 @endif
 
                 @if ($application->subscription)
-                    <a href="{{ route('plans.index') }}" class="mt-5 inline-block text-sm text-violet-600 font-medium">Your plan is active — view in My Plans →</a>
+                    <div class="mt-5 space-y-1">
+                        <p class="text-sm text-green-700 font-medium">Your plan is active.</p>
+                        @if ($application->subscription->contract_path)<a href="{{ route('plans.contract', $application->subscription) }}" class="text-sm text-violet-600 hover:underline">Download your signed contract (PDF)</a>@endif
+                    </div>
                 @endif
             </div>
         </div>
