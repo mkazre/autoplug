@@ -16,6 +16,9 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     @role('car_owner')
+                        <x-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
+                            {{ __('My Vehicles') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('plans.index')" :active="request()->routeIs('plans.*')">
                             {{ __('Plans') }}
                         </x-nav-link>
@@ -81,6 +84,9 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             @role('car_owner')
+                <x-responsive-nav-link :href="route('vehicles.index')" :active="request()->routeIs('vehicles.*')">
+                    {{ __('My Vehicles') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('plans.index')" :active="request()->routeIs('plans.*')">
                     {{ __('Plans') }}
                 </x-responsive-nav-link>

@@ -37,6 +37,7 @@ class QuoteRequestController extends Controller
             'lat' => ['nullable', 'numeric'],
             'lng' => ['nullable', 'numeric'],
             'radius' => ['nullable', 'integer'],
+            'vehicle_id' => ['nullable', 'string', 'max:20'],
             'vehicle_make' => ['nullable', 'string', 'max:100'],
             'vehicle_model' => ['nullable', 'string', 'max:100'],
             'vehicle_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
@@ -48,7 +49,10 @@ class QuoteRequestController extends Controller
         $user = $request->user();
 
         $vehicleId = null;
-        if (! empty($data['vehicle_make']) && ! empty($data['vehicle_model'])) {
+        if ($request->filled('vehicle_id') && $request->input('vehicle_id') !== 'new') {
+            $vehicleId = $user->vehicles()->whereKey($request->input('vehicle_id'))->value('id');
+        }
+        if (! $vehicleId && ! empty($data['vehicle_make']) && ! empty($data['vehicle_model'])) {
             $vehicleId = $user->vehicles()->create([
                 'make' => $data['vehicle_make'],
                 'model' => $data['vehicle_model'],

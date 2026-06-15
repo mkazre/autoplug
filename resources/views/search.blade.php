@@ -83,11 +83,20 @@
                     <h3 class="font-semibold text-gray-900 mb-2">Request quotes</h3>
                     <label class="block text-sm text-gray-700">Describe the job</label>
                     <textarea name="description" rows="2" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm" placeholder="e.g. Car pulls left when braking">{{ old('description') }}</textarea>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-                        <input name="vehicle_make" value="{{ old('vehicle_make') }}" placeholder="Make" class="border-gray-300 rounded-lg shadow-sm text-sm">
-                        <input name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="Model" class="border-gray-300 rounded-lg shadow-sm text-sm">
-                        <input name="vehicle_year" value="{{ old('vehicle_year') }}" placeholder="Year" class="border-gray-300 rounded-lg shadow-sm text-sm">
-                        <input name="vehicle_reg" value="{{ old('vehicle_reg') }}" placeholder="Reg" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                    <div class="mt-3" x-data="{ vid: '{{ $vehicles->first()?->id ?? 'new' }}' }">
+                        <label class="block text-sm text-gray-700">Vehicle</label>
+                        <select name="vehicle_id" x-model="vid" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm text-sm">
+                            @foreach ($vehicles as $v)
+                                <option value="{{ $v->id }}">{{ $v->make }} {{ $v->model }} {{ $v->year }} {{ $v->registration }}</option>
+                            @endforeach
+                            <option value="new">+ Add a new vehicle</option>
+                        </select>
+                        <div x-show="vid === 'new'" class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                            <input name="vehicle_make" value="{{ old('vehicle_make') }}" placeholder="Make" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                            <input name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="Model" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                            <input name="vehicle_year" value="{{ old('vehicle_year') }}" placeholder="Year" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                            <input name="vehicle_reg" value="{{ old('vehicle_reg') }}" placeholder="Reg" class="border-gray-300 rounded-lg shadow-sm text-sm">
+                        </div>
                     </div>
                     <div class="mt-3" x-data="{ files: [], max: 5,
                             add(e){ this.files = this.files.concat(Array.from(e.target.files)).slice(0, this.max); this.sync(e.target); },

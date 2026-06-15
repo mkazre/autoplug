@@ -75,6 +75,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:car_owner'])->group(function () {
+    Route::get('vehicles', [App\Http\Controllers\VehicleController::class, 'index'])->name('vehicles.index');
+    Route::post('vehicles', [App\Http\Controllers\VehicleController::class, 'store'])->name('vehicles.store');
+    Route::put('vehicles/{vehicle}', [App\Http\Controllers\VehicleController::class, 'update'])->name('vehicles.update');
+    Route::delete('vehicles/{vehicle}', [App\Http\Controllers\VehicleController::class, 'destroy'])->name('vehicles.destroy');
     Route::prefix('plans')->name('plans.')->group(function () {
         Route::get('/', [App\Http\Controllers\PlanController::class, 'index'])->name('index');
         Route::get('/{planProduct}/apply', [App\Http\Controllers\PlanApplicationController::class, 'create'])->name('apply');
