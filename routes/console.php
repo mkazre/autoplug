@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 Schedule::command('app:expire-stale')->everyMinute();
 
 Schedule::command('app:plan-billing')->dailyAt('06:00');
+Schedule::command('app:plan-payouts')->dailyAt('07:00');

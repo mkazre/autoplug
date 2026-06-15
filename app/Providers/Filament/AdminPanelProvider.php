@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\BidderStatsWidget;
 use App\Filament\Widgets\BookingsChartWidget;
 use App\Filament\Widgets\GarageStatsWidget;
+use App\Filament\Widgets\PlanStatsWidget;
 use App\Filament\Widgets\LatestBookingsWidget;
 use App\Filament\Widgets\LatestQuoteRequestsWidget;
 use App\Filament\Widgets\QuotesChartWidget;
@@ -83,6 +84,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 GarageStatsWidget::class,
                 BidderStatsWidget::class,
+                PlanStatsWidget::class,
                 BookingsChartWidget::class,
                 QuotesChartWidget::class,
                 RevenueChartWidget::class,
