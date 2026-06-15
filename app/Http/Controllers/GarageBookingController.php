@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\PlanRedemption;
+use App\Models\PlanSubscription;
 use App\Notifications\BookingUpdated;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,9 +35,17 @@ class GarageBookingController extends Controller
     {
         $this->authorizeBooking($request, $booking);
 
-        $booking->load(['branch', 'user', 'quote']);
+        $booking->load(['branch.garage', 'user', 'quote.quoteRequestGarage.quoteRequest']);
 
-        return view('garage.bookings.show', compact('booking'));
+        $vehicleId = $booking->quote?->quoteRequestGarage?->quoteRequest?->vehicle_id;
+        $subscription = $vehicleId
+            ? PlanSubscription::where('vehicle_id', $vehicleId)->where('user_id', $booking->user_id)
+                ->where('status', 'active')->with('product.benefitItems')->first()
+            : null;
+
+        $claims = PlanRedemption::where('booking_id', $booking->id)->latest()->get();
+
+        return view('garage.bookings.show', compact('booking', 'subscription', 'claims'));
     }
 
     public function updateStatus(Request $request, Booking $booking): RedirectResponse
