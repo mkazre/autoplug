@@ -105,7 +105,9 @@ class QuoteRequestController extends Controller
 
         $quoteRequest->load(['service', 'vehicle', 'requestGarages.branch.garage', 'requestGarages.quote']);
 
-        return view('quotes.show', compact('quoteRequest'));
+        $discount = \App\Support\PlanDiscount::for($request->user());
+
+        return view('quotes.show', compact('quoteRequest', 'discount'));
     }
 
     public function accept(Request $request, QuoteRequest $quoteRequest, Quote $quote): RedirectResponse

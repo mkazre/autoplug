@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Quote;
 use App\Notifications\BookingUpdated;
+use App\Support\PlanDiscount;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -26,7 +27,10 @@ class BookingController extends Controller
         $quote = $this->findQuote($request, (int) $request->query('quote'));
         abort_if($this->hasActiveBooking($quote), 409, 'This quote already has an active booking.');
 
-        return view('bookings.create', compact('quote'));
+        $discount = PlanDiscount::for($request->user());
+        $discountAmount = $discount ? PlanDiscount::compute((float) $quote->total_price, $discount) : 0;
+
+        return view('bookings.create', compact('quote', 'discount', 'discountAmount'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -39,12 +43,18 @@ class BookingController extends Controller
         $quote = $this->findQuote($request, (int) $data['quote_id']);
         abort_if($this->hasActiveBooking($quote), 409, 'This quote already has an active booking.');
 
+        $discount = PlanDiscount::for($request->user());
+        $discountAmount = $discount ? PlanDiscount::compute((float) $quote->total_price, $discount) : 0;
+
         $booking = Booking::create([
             'quote_id' => $quote->id,
+            'plan_subscription_id' => $discount['subscription_id'] ?? null,
             'user_id' => $request->user()->id,
             'branch_id' => $quote->quoteRequestGarage->branch_id,
             'scheduled_at' => $data['scheduled_at'],
             'status' => 'pending',
+            'discount_amount' => $discountAmount,
+            'net_amount' => (float) $quote->total_price - $discountAmount,
         ]);
 
         $quote->quoteRequestGarage->branch->garage->user?->notify(new BookingUpdated($booking, 'requested'));

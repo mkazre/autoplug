@@ -8,7 +8,13 @@
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <h3 class="text-lg font-medium text-gray-900">{{ $quote->quoteRequestGarage->branch->garage->name }}</h3>
                 <p class="text-sm text-gray-500">{{ $quote->quoteRequestGarage->branch->name }}</p>
-                <div class="mt-2 text-2xl font-bold text-gray-900">R{{ number_format($quote->total_price, 2) }}</div>
+                @if (($discountAmount ?? 0) > 0)
+                    <div class="mt-2"><span class="text-base text-gray-400 line-through">R{{ number_format($quote->total_price, 2) }}</span></div>
+                    <div class="text-2xl font-bold text-gray-900">R{{ number_format($quote->total_price - $discountAmount, 2) }}</div>
+                    <p class="text-xs text-violet-600">Plan member discount: &minus;R{{ number_format($discountAmount, 2) }} (funded by Autoplug)</p>
+                @else
+                    <div class="mt-2 text-2xl font-bold text-gray-900">R{{ number_format($quote->total_price, 2) }}</div>
+                @endif
                 @if (is_array($quote->items_json))
                     <ul class="mt-2 text-sm text-gray-600">
                         @foreach ($quote->items_json as $item)

@@ -18,7 +18,7 @@
                 <p class="text-sm text-gray-500">{{ $booking->branch?->name }}</p>
                 <p class="text-sm text-gray-700 mt-2">Scheduled: {{ $booking->scheduled_at?->format('D, d M Y H:i') }}</p>
                 @if ($booking->quote)
-                    <p class="text-sm text-gray-700 mt-1">Amount: R{{ number_format($booking->quote->total_price, 2) }}</p>
+                    <p class="text-sm text-gray-700 mt-1">Amount: R{{ number_format($booking->net_amount ?? $booking->quote->total_price, 2) }}@if ($booking->discount_amount > 0) <span class="text-xs text-violet-600">(plan discount &minus;R{{ number_format($booking->discount_amount, 2) }})</span>@endif</p>
                 @endif
 
                 @php $paid = $booking->payment && $booking->payment->status === 'paid'; @endphp
@@ -28,7 +28,7 @@
                 @elseif (in_array($booking->status, ['pending', 'confirmed']) && $booking->quote && $booking->quote->total_price > 0)
                     <form method="POST" action="{{ route('bookings.pay', $booking) }}" class="mt-4">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Pay R{{ number_format($booking->quote->total_price, 2) }} with PayFast</button>
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-violet-600 rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Pay R{{ number_format($booking->net_amount ?? $booking->quote->total_price, 2) }} with PayFast</button>
                     </form>
                 @endif
 

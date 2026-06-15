@@ -23,7 +23,7 @@ class PaymentController extends Controller
         abort_unless(in_array($booking->status, ['pending', 'confirmed']), 422, 'This booking cannot be paid.');
 
         $booking->load('quote');
-        $amount = (float) ($booking->quote?->total_price ?? 0);
+        $amount = (float) ($booking->net_amount ?? $booking->quote?->total_price ?? 0);
         abort_if($amount <= 0, 422, 'Nothing to pay.');
 
         if ($booking->payment && $booking->payment->status === 'paid') {
@@ -108,6 +108,7 @@ class PaymentController extends Controller
                 $payment->booking->update(['status' => 'confirmed']);
             }
             $payment->booking?->user?->notify(new PaymentReceived($payment));
+            \App\Support\PlanDiscount::realize($payment->booking);
         } else {
             $payment->update(['status' => 'failed']);
         }
