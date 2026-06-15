@@ -25,6 +25,28 @@
                 @endforelse
             </div>
 
+            @if ($subscriptions->isNotEmpty())
+                <div class="bg-white shadow-sm rounded-2xl p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">My plans</h3>
+                    <div class="divide-y divide-gray-100">
+                        @foreach ($subscriptions as $s)
+                            @php $next = $s->installments->whereIn('status', ['pending', 'overdue'])->sortBy('due_date')->first(); @endphp
+                            <div class="py-3 flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ $s->product?->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $s->vehicle?->make }} {{ $s->vehicle?->model }} • ends {{ $s->end_date?->format('d M Y') }}</div>
+                                    @if ($next)<div class="text-xs {{ $next->status === 'overdue' ? 'text-red-600' : 'text-gray-500' }}">Next: R{{ number_format((float) $next->amount_due, 2) }} due {{ $next->due_date?->format('d M Y') }}</div>@endif
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs px-2 py-0.5 rounded-full {{ ['active' => 'bg-green-100 text-green-800', 'suspended' => 'bg-red-100 text-red-700', 'completed' => 'bg-gray-100 text-gray-600'][$s->status] ?? 'bg-gray-100 text-gray-600' }}">{{ ucfirst($s->status) }}</span>
+                                    <div class="mt-1"><a href="{{ route('plans.subscriptions.show', $s) }}" class="text-sm text-violet-600 hover:underline">Manage →</a></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             @if ($applications->isNotEmpty())
                 <div class="bg-white shadow-sm rounded-2xl p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-3">My applications</h3>

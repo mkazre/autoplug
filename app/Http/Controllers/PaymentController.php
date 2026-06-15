@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\PlanPayment;
 use App\Notifications\PaymentReceived;
+use App\Notifications\PlanPaymentReceived;
 use App\Support\Settings;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -83,7 +85,13 @@ class PaymentController extends Controller
             return response('not validated', 400);
         }
 
-        $payment = Payment::where('reference', $data['m_payment_id'] ?? '')->first();
+        $ref = $data['m_payment_id'] ?? '';
+
+        if (str_starts_with($ref, 'PLAN-')) {
+            return $this->handlePlanItn($data, $ref);
+        }
+
+        $payment = Payment::where('reference', $ref)->first();
         if (! $payment) {
             return response('payment not found', 200);
         }
@@ -102,6 +110,44 @@ class PaymentController extends Controller
             $payment->booking?->user?->notify(new PaymentReceived($payment));
         } else {
             $payment->update(['status' => 'failed']);
+        }
+
+        return response('OK', 200);
+    }
+
+    private function handlePlanItn(array $data, string $ref): Response
+    {
+        $pp = PlanPayment::where('reference', $ref)->first();
+        if (! $pp) {
+            return response('payment not found', 200);
+        }
+
+        if (abs((float) ($data['amount_gross'] ?? 0) - (float) $pp->amount) > 0.01) {
+            Log::warning('PayFast ITN: plan amount mismatch', ['ref' => $ref]);
+            return response('amount mismatch', 400);
+        }
+
+        if (($data['payment_status'] ?? '') === 'COMPLETE') {
+            if ($pp->status !== 'paid') {
+                $pp->update(['status' => 'paid', 'paid_at' => now()]);
+
+                $installment = $pp->installment;
+                if ($installment && $installment->status !== 'paid') {
+                    $installment->update(['status' => 'paid', 'paid_at' => now(), 'plan_payment_id' => $pp->id]);
+                }
+
+                $subscription = $pp->subscription;
+                if ($subscription) {
+                    $subscription->increment('total_paid', $pp->amount);
+                    $subscription->decrement('current_balance', $pp->amount);
+                    if ($subscription->status === 'suspended') {
+                        $subscription->update(['status' => 'active', 'missed_count' => 0]);
+                    }
+                    $subscription->user?->notify(new PlanPaymentReceived($pp));
+                }
+            }
+        } else {
+            $pp->update(['status' => 'failed']);
         }
 
         return response('OK', 200);

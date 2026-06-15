@@ -79,6 +79,8 @@ Route::middleware(['auth', 'role:car_owner'])->group(function () {
         Route::get('/{planProduct}/apply', [App\Http\Controllers\PlanApplicationController::class, 'create'])->name('apply');
         Route::post('/{planProduct}/apply', [App\Http\Controllers\PlanApplicationController::class, 'store'])->name('store');
         Route::get('/applications/{planApplication}', [App\Http\Controllers\PlanApplicationController::class, 'show'])->name('applications.show');
+        Route::get('/subscriptions/{planSubscription}', [App\Http\Controllers\PlanController::class, 'subscription'])->name('subscriptions.show');
+        Route::post('/installments/{planInstallment}/pay', [App\Http\Controllers\PlanBillingController::class, 'pay'])->name('installments.pay');
     });
 
     Route::prefix('quotes')->name('quotes.')->group(function () {
