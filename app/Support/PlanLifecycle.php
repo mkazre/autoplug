@@ -98,6 +98,7 @@ class PlanLifecycle
             $subscription->loadMissing('user');
             $subscription->user?->notify(new PlanActivated($subscription));
             PlanAudit::log($subscription, 'activated', []);
+            PlanReferralService::rewardIfReferred($subscription);
         }
     }
 

@@ -36,6 +36,7 @@ Route::get('/', function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/garages', [GarageDirectoryController::class, 'index'])->name('garages.index');
 Route::get('/garages/{garage}', [GarageDirectoryController::class, 'show'])->name('garages.show');
+Route::get('/r/{code}', fn (string $code) => redirect('/plans')->cookie('ref_code', $code, 43200))->name('referral.land');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -136,6 +137,7 @@ Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage
     Route::get('bookings/{booking}', [GarageBookingController::class, 'show'])->name('bookings.show');
     Route::post('bookings/{booking}/status', [GarageBookingController::class, 'updateStatus'])->name('bookings.status');
     Route::post('bookings/{booking}/redeem', [App\Http\Controllers\GarageRedemptionController::class, 'store'])->name('bookings.redeem');
+    Route::get('referrals', [App\Http\Controllers\GarageReferralController::class, 'index'])->name('referrals.index');
 });
 
 require __DIR__.'/auth.php';
