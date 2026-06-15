@@ -54,7 +54,9 @@ class SearchController extends Controller
             'distance' => round($b->distance, 1),
         ])->values();
 
-        return view('search', compact('services', 'radius', 'radiusMin', 'radiusMax', 'serviceId', 'address', 'lat', 'lng', 'branches', 'markers', 'error'));
+        $vehicles = $request->user()?->vehicles()->latest()->get() ?? collect();
+
+        return view('search', compact('services', 'radius', 'radiusMin', 'radiusMax', 'serviceId', 'address', 'lat', 'lng', 'branches', 'markers', 'error', 'vehicles'));
     }
 
     private function applyContactPrivacy($branches, $user): void
