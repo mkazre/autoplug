@@ -38,13 +38,11 @@ class GarageQuoteController extends Controller
 
         $quoteRequestGarage->loadMissing('quoteRequest');
 
-        // Optionally lock quoting once the customer has accepted a quote for this request.
         if (Settings::bool('lock_quote_after_accept', true)
             && optional($quoteRequestGarage->quoteRequest)->status === 'closed') {
             return back()->with('error', 'This request has already been awarded, so quotes are locked.');
         }
 
-        // Once the response window closes you can no longer submit a first quote.
         if ($quoteRequestGarage->status !== 'quoted' && $quoteRequestGarage->isExpired()) {
             return back()->with('error', 'The response window for this request has closed.');
         }
@@ -59,7 +57,6 @@ class GarageQuoteController extends Controller
 
         $total = collect($data['items'])->sum(fn ($i) => (float) $i['price']);
 
-        // The customer's acceptance clock starts (or restarts) the moment a quote is sent.
         $acceptExpiresAt = now()->addMinutes(Settings::int('quote_accept_window_minutes', 2880));
 
         $quoteRequestGarage->quote()->updateOrCreate([], [
@@ -77,6 +74,20 @@ class GarageQuoteController extends Controller
         $quoteRequestGarage->quoteRequest->user?->notify(new QuoteReady($quoteRequestGarage));
 
         return redirect()->route('garage.requests.index')->with('status', 'Quote sent.');
+    }
+
+    public function ackResults(Request $request): RedirectResponse
+    {
+        $garage = $request->user()->garage;
+
+        if ($garage) {
+            QuoteRequestGarage::whereIn('branch_id', $garage->branches()->pluck('id'))
+                ->whereIn('status', ['accepted', 'declined'])
+                ->whereNull('result_seen_at')
+                ->update(['result_seen_at' => now()]);
+        }
+
+        return back();
     }
 
     private function authorizeQrg(Request $request, QuoteRequestGarage $qrg): void

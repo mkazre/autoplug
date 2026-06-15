@@ -7,6 +7,8 @@ use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Models\QuoteRequestGarage;
 use App\Notifications\NewQuoteRequest;
+use App\Notifications\QuoteLost;
+use App\Notifications\QuoteWon;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -79,7 +81,6 @@ class QuoteRequestController extends Controller
             ->with('garage.user')
             ->get();
 
-        // Garages have a configurable window to respond to this request.
         $garageExpiresAt = now()->addMinutes(Settings::int('garage_response_window_minutes', 2880));
 
         foreach ($branches as $branch) {
@@ -127,6 +128,19 @@ class QuoteRequestController extends Controller
             ->update(['status' => 'declined']);
 
         $quoteRequest->update(['status' => 'closed']);
+
+        // Notify the winning garage and the losing bidders (bell + chime + email/SMS).
+        $qrg->loadMissing('branch.garage.user', 'quoteRequest.service', 'quote');
+        $qrg->branch?->garage?->user?->notify(new QuoteWon($qrg));
+
+        $losers = QuoteRequestGarage::where('quote_request_id', $quoteRequest->id)
+            ->where('id', '!=', $qrg->id)
+            ->where('status', 'declined')
+            ->with(['branch.garage.user', 'quoteRequest.service'])
+            ->get();
+        foreach ($losers as $loser) {
+            $loser->branch?->garage?->user?->notify(new QuoteLost($loser));
+        }
 
         return back()->with('status', 'Quote accepted. Online booking & payment arrive in the next phase.');
     }

@@ -112,6 +112,7 @@ Route::middleware(['auth', 'role:garage_owner'])->prefix('garage')->name('garage
     Route::get('requests', [GarageQuoteController::class, 'index'])->name('requests.index');
     Route::get('requests/{quoteRequestGarage}', [GarageQuoteController::class, 'show'])->name('requests.show');
     Route::post('requests/{quoteRequestGarage}/quote', [GarageQuoteController::class, 'storeQuote'])->name('requests.quote.store');
+    Route::post('requests/results/ack', [GarageQuoteController::class, 'ackResults'])->name('requests.results.ack');
     Route::get('bookings', [GarageBookingController::class, 'index'])->name('bookings.index');
     Route::get('bookings/{booking}', [GarageBookingController::class, 'show'])->name('bookings.show');
     Route::post('bookings/{booking}/status', [GarageBookingController::class, 'updateStatus'])->name('bookings.status');

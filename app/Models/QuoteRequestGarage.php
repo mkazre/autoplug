@@ -8,12 +8,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class QuoteRequestGarage extends Model
 {
-    protected $fillable = ['quote_request_id', 'branch_id', 'status', 'expires_at'];
+    protected $fillable = ['quote_request_id', 'branch_id', 'status', 'expires_at', 'result_seen_at'];
 
     protected $casts = [
         'quote_request_id' => 'integer',
         'branch_id' => 'integer',
         'expires_at' => 'datetime',
+        'result_seen_at' => 'datetime',
     ];
 
     public function isExpired(): bool

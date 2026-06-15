@@ -14,3 +14,5 @@
         <a href="{{ route('account.settings') }}" class="inline-flex items-center px-1 py-4 border-b-2 text-sm font-medium {{ $tab('account.settings') }}">Settings</a>
     </div>
 </nav>
+
+@include('partials.quote-result-popup')
