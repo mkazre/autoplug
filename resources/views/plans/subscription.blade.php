@@ -29,12 +29,35 @@
                 @if ($sub->contract_path)
                     <a href="{{ route('plans.contract', $sub) }}" class="mt-3 inline-block text-sm text-violet-600 hover:underline">Download signed contract (PDF)</a>
                 @endif
+                @php $nearExpiry = $sub->end_date && $sub->end_date->lte(now()->addDays(60)); @endphp
+                @if ($sub->product && ($sub->status === 'completed' || $nearExpiry))
+                    <a href="{{ route('plans.apply', $sub->product) }}" class="mt-3 ms-3 inline-block text-sm font-medium text-violet-600 hover:underline">Renew this plan &rarr;</a>
+                @endif
                 @if ($sub->status === 'pending')
                     <div class="mt-3 p-3 bg-amber-50 text-amber-800 text-sm rounded">Your cover activates as soon as your first payment is received. Pay by card below, or submit EFT/deposit proof.</div>
                 @elseif ($sub->status === 'suspended')
                     <div class="mt-3 p-3 bg-red-50 text-red-700 text-sm rounded">Your plan is suspended for missed payments. Settle the overdue installment(s) below to reactivate cover.</div>
                 @endif
             </div>
+
+            @if ($benefits->isNotEmpty())
+                <div class="bg-white shadow-sm rounded-2xl p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-3">Coverage benefits</h3>
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-left text-gray-500 border-b"><th class="py-2">Item</th><th>Used</th><th>Limit</th><th>Remaining</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach ($benefits as $b)
+                                <tr>
+                                    <td class="py-2">{{ $b['name'] }}</td>
+                                    <td>{{ $b['status']['used'] + 0 }}</td>
+                                    <td>{{ $b['status']['limit'] !== null ? $b['status']['limit'] + 0 : 'Unlimited' }}</td>
+                                    <td>{{ $b['status']['remaining'] !== null ? $b['status']['remaining'] + 0 : '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
 
             <div class="bg-white shadow-sm rounded-2xl p-6">
                 <h3 class="text-lg font-medium text-gray-900 mb-3">Installments</h3>

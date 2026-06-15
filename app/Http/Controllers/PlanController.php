@@ -34,11 +34,18 @@ class PlanController extends Controller
         abort_unless((int) $planSubscription->user_id === (int) $request->user()->id, 403);
 
         $planSubscription->load([
-            'product', 'vehicle',
+            'product.benefitItems', 'vehicle',
             'installments' => fn ($q) => $q->orderBy('installment_number'),
             'payments' => fn ($q) => $q->latest(),
         ]);
 
-        return view('plans.subscription', ['sub' => $planSubscription]);
+        $benefits = $planSubscription->product
+            ? $planSubscription->product->benefitItems->map(fn ($bi) => [
+                'name' => $bi->item_name,
+                'status' => \App\Support\PlanCoverage::status($planSubscription, $bi),
+            ])
+            : collect();
+
+        return view('plans.subscription', ['sub' => $planSubscription, 'benefits' => $benefits]);
     }
 }
