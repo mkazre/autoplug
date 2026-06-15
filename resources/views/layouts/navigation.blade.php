@@ -15,6 +15,11 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @role('car_owner')
+                        <x-nav-link :href="route('plans.index')" :active="request()->routeIs('plans.*')">
+                            {{ __('Plans') }}
+                        </x-nav-link>
+                    @endrole
                 </div>
             </div>
 
@@ -75,6 +80,11 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @role('car_owner')
+                <x-responsive-nav-link :href="route('plans.index')" :active="request()->routeIs('plans.*')">
+                    {{ __('Plans') }}
+                </x-responsive-nav-link>
+            @endrole
         </div>
 
         <!-- Responsive Settings Options -->

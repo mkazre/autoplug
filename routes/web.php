@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{notification}/go', [App\Http\Controllers\NotificationController::class, 'go'])->name('notifications.go');
     Route::post('/notifications/read-all', [App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::get('/plan-documents/{planApplicationDocument}', [App\Http\Controllers\PlanApplicationController::class, 'document'])->name('plans.documents.show');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin-export')->name('admin.export.')->group(function () {
@@ -70,6 +71,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:car_owner'])->group(function () {
+    Route::prefix('plans')->name('plans.')->group(function () {
+        Route::get('/', [App\Http\Controllers\PlanController::class, 'index'])->name('index');
+        Route::get('/{planProduct}/apply', [App\Http\Controllers\PlanApplicationController::class, 'create'])->name('apply');
+        Route::post('/{planProduct}/apply', [App\Http\Controllers\PlanApplicationController::class, 'store'])->name('store');
+        Route::get('/applications/{planApplication}', [App\Http\Controllers\PlanApplicationController::class, 'show'])->name('applications.show');
+    });
+
     Route::prefix('quotes')->name('quotes.')->group(function () {
         Route::get('/', [QuoteRequestController::class, 'index'])->name('index');
         Route::post('/', [QuoteRequestController::class, 'store'])->name('store');
