@@ -45,7 +45,7 @@
                             <input name="first_registered_on" type="date" value="{{ old('first_registered_on') }}" class="mt-1 w-full border-gray-300 rounded-lg shadow-sm text-sm">
                         </div>
                     </div>
-                    <p class="text-xs text-gray-500">Eligibility: up to {{ number_format((int) $planProduct->max_km) }} km &amp; {{ (int) $planProduct->max_age_years }} years@if ($planProduct->requires_full_history); full service history required @endif.</p>
+                    <p class="text-xs text-gray-500">Eligibility: up to {{ number_format((int) $planProduct->max_km) }} km &amp; {{ (int) $planProduct->max_age_years }} years.@if ($planProduct->requires_full_history) Full service history required.@endif</p>
                     <div class="text-right"><button type="button" @click="step = 2" class="px-4 py-2 bg-violet-600 text-white rounded-lg text-sm font-semibold">Next</button></div>
                 </div>
 

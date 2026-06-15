@@ -15,7 +15,7 @@
                         <span class="self-start text-xs px-2 py-0.5 rounded-full {{ $p->type === 'maintenance' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700' }}">{{ $p->type === 'maintenance' ? 'Maintenance Plan' : 'Service Plan' }}</span>
                         <h3 class="mt-2 text-lg font-semibold text-gray-900">{{ $p->name }}</h3>
                         @if ($p->description)<p class="text-sm text-gray-600 mt-1">{{ $p->description }}</p>@endif
-                        <p class="text-xs text-gray-500 mt-3">Eligibility: up to {{ number_format((int) $p->max_km) }} km &amp; {{ (int) $p->max_age_years }} years@if ($p->requires_full_history), full service history required @endif.</p>
+                        <p class="text-xs text-gray-500 mt-3">Eligibility: up to {{ number_format((int) $p->max_km) }} km &amp; {{ (int) $p->max_age_years }} years.@if ($p->requires_full_history) Full service history required.@endif</p>
                         @php $from = $p->pricingTiers->min('monthly_price'); @endphp
                         @if ($from)<p class="mt-3 text-gray-900"><span class="text-2xl font-bold">R{{ number_format((float) $from, 2) }}</span><span class="text-sm text-gray-500">/mo from</span></p>@endif
                         <a href="{{ route('plans.apply', $p) }}" class="mt-4 inline-flex justify-center items-center px-4 py-2 bg-violet-600 rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-violet-500">Apply now</a>
